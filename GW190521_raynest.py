@@ -42,7 +42,7 @@ class redshift_model(raynest.model.Model):
     #                  'M_eff', # M_eff is from GW data
 
        #need to use bounds in log space
-        self.bounds =[ [0,10], [0,300], [0,np.pi], [0, 2* np.pi], [0, 2*np.pi] ]
+        self.bounds =[ [np.log(3),5], [0,300], [0,np.pi], [0, 2* np.pi], [0, 2*np.pi] ]
 
     
 
@@ -79,31 +79,39 @@ class redshift_model(raynest.model.Model):
         z_rel = gamma * (1 - vel_LoS)
 
         #z_grav (r)
-        z_grav = np.sqrt(1 - (x['r'])**-1)-1
+        z_grav = np.sqrt(1 - np.exp(-(x['r'])))-1
 
         #D_L eff (z_c, z_rel, z_grav, D_L)
         D_eff = (1+z_rel)**2 * (1+z_grav) * self.DL_em
 
         #M_c eff (z_c, z_r, z_g, M_c)
-        M_eff = (1+self.z_c) * (1+ z_rel) * (1+ z_grav) * x['M_c']
+        M_eff = (1+self.z_c) * (1+ z_rel) * (1+ z_grav) * x['M_C']
 
+        pt = np.atleast_2d([M_eff, D_eff])
         #my likelihood is marginalized over D_L eff, M_c eff, angles, z_r, z_g, D_L
-        logl = @njit(logsumexp_jit([d._fast_logpdf(np.atleast_2d([M_eff, D_eff])) for d in self.draws], self.ones) - np.log(self.N_draws))
+        logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)
 
         return logl
 
 if __name__ == '__main__':
 
-    dpgmm_file = 'path/to/file'
+    postprocess = False
+
+    dpgmm_file = 'draws_GW190521_mc_dist.pkl'
     z_c = 0.438
     GW_posteriors = load_density(dpgmm_file)
 
     mymodel= redshift_model(z_c, GW_posteriors)
-    nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000)
-    nest.run(corner = True)
-    post = nest.posterior_samples.ravel()
+    if not postprocess:
+        nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000, output = 'inference/')
+        nest.run(corner = True)
+        post = nest.posterior_samples.ravel()
+    else:
+        with h5py.File('inference/raynest.h5', 'r') as f:
+            post = np.array(f['posterior_samples']['combined'])
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
-    # fig = corner(samples, labels = ['$$','$$'])
-    # fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
+    samples[:,0] = np.exp(samples[:,0])
+    fig = corner(samples, labels = ['$r/r_s$','$M_c$','$RA$','$Dec$','$phase$'])
+    fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
