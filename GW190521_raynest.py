@@ -11,6 +11,7 @@ class Line(raynest.model.Model):
     def __init__(self,data, z_c):
         super(Line,self).__init__()
         #defining effective luminosity and chirp mass, will get this from data??
+        # z_c comes from the EM candidate
         self.data=data
         self.z_c=z_c
 
