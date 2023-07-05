@@ -6,11 +6,13 @@ from scipy.stats import laplace
 
 def prob(logslope, intercept, width1, width2, peakheight1, peakheight2, center1, center2, logr):
     linear= logslope * logr +intercept
-    #normalize it in log space
+    #normalize it in log space??????
     #area= logslope*logr.max()**2+intercept*logr.max() - (logslope*logr.min()**2+intercept*logr.min())
     #linear/=area
 
     #c=2 the scipy documentation is a lie
+    #defined with a center and scale in log space
+    #just eyeballed scale factor to shrink the width and then rescaled the entire distribution 
     peak1= (laplace.pdf(logr, center1, width1/100))/10
     peak2=(laplace.pdf(logr, center2, width2/100))/10
     return linear + peak1 +peak2      # /3 if each is normalized IF WANT TO NORMALIZE? MAYBE?
