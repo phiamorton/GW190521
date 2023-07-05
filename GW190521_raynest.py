@@ -25,7 +25,7 @@ class redshift_model(raynest.model.Model):
         self.z_c=z_c
         self.omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
         self.DL_em = self.omega.LuminosityDistance_double(self.z_c)
-        
+        print(self.DL_em)
         self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
                      'M_C', # M_C true chirp mass
                      'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
@@ -42,7 +42,7 @@ class redshift_model(raynest.model.Model):
     #                  'M_eff', # M_eff is from GW data
 
        #need to use bounds in log space
-        self.bounds =[ [np.log(3),5], [0,300], [0,np.pi], [0, 2* np.pi], [0, 2*np.pi] ]
+        self.bounds =[ [0, 3], [0.,300.], [0,np.pi], [0, 2* np.pi], [0, 2*np.pi] ]
 
     
 
@@ -69,27 +69,27 @@ class redshift_model(raynest.model.Model):
 
         #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
         #the pre-merger velocity along LOS
-        vel     = 1./np.sqrt(2*(np.exp(x['r'])-1))
+        vel     = 1./np.sqrt((np.exp(x['r'])-1))
         vel_LoS = vel * np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
         #gamma/lorentz factor
         gamma = 1./np.sqrt(1 - vel**2)
 
         #z_rel (r, angles)
         #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
-        z_rel = gamma * (1 - vel_LoS)
+        z_rel = gamma * (1 - vel_LoS) - 1
 
         #z_grav (r)
-        z_grav = np.sqrt(1 - np.exp(-(x['r'])))-1
-
+        z_grav = 1./np.sqrt(1 - np.exp(-x['r'])) - 1 
         #D_L eff (z_c, z_rel, z_grav, D_L)
         D_eff = (1+z_rel)**2 * (1+z_grav) * self.DL_em
 
         #M_c eff (z_c, z_r, z_g, M_c)
-        M_eff = (1+self.z_c) * (1+ z_rel) * (1+ z_grav) * x['M_C']
+        M_eff = (1+self.z_c) * (1 + z_rel) * (1 + z_grav) * x['M_C']
 
         pt = np.atleast_2d([M_eff, D_eff])
         #my likelihood is marginalized over D_L eff, M_c eff, angles, z_r, z_g, D_L
-        logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)
+        logl = self.draws[0]._fast_logpdf(pt)
+        # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)
 
         return logl
 
