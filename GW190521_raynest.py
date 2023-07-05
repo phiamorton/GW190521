@@ -19,24 +19,17 @@ class redshift_model(raynest.model.Model):
         self.names= ['r_from_SMBH', # radius from SMBH in terms of Swarzshild radii (log scale)?
                      'M_C', # M_C true chirp mass
                      'D_L', # D_L true luminosity distance in Mpc
-                     'z_rel', 
-                     'z_grav', 
-                     'theta_disk', 
-                     'theta_orbital_phase', 
-                     'D_eff', 
-                     'M_eff',
+                     'z_rel', # z_rel   is relativistic redshift
+                     'z_grav', # z_grav gravitational redshift
+                     'theta_disk', # theta_disk is the inclination of the AGN disk (max at 0)
+                     'theta_orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at pi/2), axis defined as orthogonal to LOS 
+                     'D_eff', # D_eff is effective luminosity distance from GW data in Mpc
+                     'M_eff', # M_eff is from GW data
                      ]
 
-       # radius from SMBH in terms of Swarzshild radii (log scale)?
-       # M_C true chirp mass
-       # D_L true luminosity distance in Mpc
-       # z_rel   is relativistic redshift
-       # z_grav gravitational redshift
-       # theta_disk is the inclination of the AGN disk (max at 0)
-       # theta_orbital_phase is the phase of BBH in its orbit (max at pi/2), axis defined as orthogonal to LOS 
-       # D_eff is effective luminosity distance from GW data in Mpc
-       # M_eff is from GW data
        # equations using G=c=1
+
+       #need to use bounds in log space
         self.bounds =[ [0,5], [0,150], [1000,10000], [0,2], [0,2], [0,np.pi/4], [np.pi/4, 3*np.pi/4], [1000, 10000], [0,150] ]
 
     
@@ -61,6 +54,24 @@ class redshift_model(raynest.model.Model):
 
     def log_likelihood(self,x):
         
+        #need prob(D_L eff and M_c eff from GW data), use distribution from FIGARO?
+        #need to normalize this distribution with the prior on D_L eff and M_c eff ? not sure how to get this, somewhow from GW data
+
+        #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
+        vel= 1/2 *np.log(2(x['r']-1))
+
+
+        #z_rel (r, angles)
+
+        #z_grav (r)
+
+        #D_L (z_c (known), cosmology (chosen))
+
+        #D_L eff (z_c, z_r, z_g, D_L)
+
+        #M_c eff (z_c, z_r, z_g, M_c)
+
+        #my likelihood is marginalized over D_L eff, M_c eff, angles, z_r, z_g, D_L
         
         return logl
 
