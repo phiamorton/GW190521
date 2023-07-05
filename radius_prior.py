@@ -4,7 +4,7 @@ from scipy.stats import laplace
 
 
 
-def prob(logslope, intercept, width1, width2, peakheight1, peakheight2, center1, center2, logr):
+def rad_prior(logslope, intercept, width1, width2, peakheight1, peakheight2, center1, center2, logr):
     linear= logslope * logr +intercept
     #normalize it in log space??????
     #area= logslope*logr.max()**2+intercept*logr.max() - (logslope*logr.min()**2+intercept*logr.min())
@@ -33,7 +33,7 @@ peakheight2= 0.5
 logr= np.linspace(0.5, 4, 100000) #already log
 #print(logr)
 
-plt.plot(logr, prob(logslope, intercept, width1, width2, peakheight1, peakheight2, center1, center2, logr))
+plt.plot(logr, rad_prior(logslope, intercept, width1, width2, peakheight1, peakheight2, center1, center2, logr))
 
 #print(help(laplace.ppf))
 #test1=laplace.pdf(logr,2,width1/100)
