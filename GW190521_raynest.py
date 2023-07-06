@@ -33,13 +33,13 @@ class redshift_model(raynest.model.Model):
                      'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at pi/2), axis defined as orthogonal to LOS 
                      ]
 
-       # equations using G=c=1
-       #orbital phases defined in the plane (ie along the disk from bird's eye view)
-    #    'D_L', # D_L true luminosity distance in Mpc
-    #                  'z_rel', # z_rel   is relativistic redshift
-    #                  'z_grav', # z_grav gravitational redshift
+    # equations using G=c=1
+    #orbital phases defined in the plane (ie along the disk from bird's eye view)
+    #  'D_L', # D_L true luminosity distance in Mpc
+    # 'z_rel', # z_rel   is relativistic redshift
+    #  'z_grav', # z_grav gravitational redshift
     # 'D_eff', # D_eff is effective luminosity distance from GW data in Mpc
-    #                  'M_eff', # M_eff is from GW data
+    # 'M_eff', # M_eff is from GW data
 
        #need to use bounds in log space
         self.bounds =[ [0, 3], [0.,300.], [0,np.pi], [0, 2* np.pi], [0, 2*np.pi] ]
