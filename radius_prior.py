@@ -26,17 +26,18 @@ def rad_prior(logr):
     peak2=(laplace.pdf(logr, center2, width2/100))/10
     return linear + peak1 +peak2      # /3 if each is normalized IF WANT TO NORMALIZE? MAYBE?
 
+if __name__ == '__main__':
 
-#radius (in terms of Swarzchild radii) on a log scale
-logr= np.linspace(0.5, 4, 100000) #already log
-#print(logr)
+    #radius (in terms of Swarzchild radii) on a log scale
+    logr= np.linspace(0.5, 4, 100000) #already log
+    #print(logr)
 
-plt.plot(logr, rad_prior(logr))
+    plt.plot(logr, rad_prior(logr))
 
-#print(help(laplace.ppf))
-#test1=laplace.pdf(logr,2,width1/100)
-#plt.plot(logr, test1)
-plt.xlabel(r'log($\frac{r}{R_s}$)')
-plt.ylabel('prob(BBH location)')
-plt.show()
+    #print(help(laplace.ppf))
+    #test1=laplace.pdf(logr,2,width1/100)
+    #plt.plot(logr, test1)
+    plt.xlabel(r'log($\frac{r}{R_s}$)')
+    plt.ylabel('prob(BBH location)')
+    plt.show()
 
