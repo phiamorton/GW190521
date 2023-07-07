@@ -44,7 +44,7 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S
-        self.bounds =[ [0, 3], [0.,300.], [0,2*np.pi], [-np.pi/2, np.pi/2], [0, 2*np.pi] ]
+        self.bounds =[ [0, 3], [0.,300.], [0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
 
     
 
