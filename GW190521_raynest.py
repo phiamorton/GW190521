@@ -158,6 +158,16 @@ if __name__ == '__main__':
     plt.xlabel('distance from SMBH [$R_s$]')
     plt.ylabel('velocity [% c]')
     plt.show()
+
+    plt.bar(r,z_rel)
+    plt.xlabel('distance from SMBH [$R_s$]')
+    plt.ylabel('$z_{rel}$')
+    plt.show()
+
+    plt.bar(r,z_grav)
+    plt.xlabel('distance from SMBH [$R_s$]')
+    plt.ylabel('$z_{grav}$')
+    plt.show()
     
 
     
