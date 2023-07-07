@@ -58,8 +58,9 @@ class redshift_model(raynest.model.Model):
 
 
         if np.isfinite(logp):
-            logp_radius = 0.#np.log(rad_prior(x['r'])) #radius prior (log Swarzchild radii)
-            logp_M_c    = 0. #agnostic flat chirp mass prior
+            logp_radius = 0.
+            #logp_radius= np.log(rad_prior(x['r'])) #radius prior (log Swarzchild radii)
+            logp_M_c = 0. #agnostic flat chirp mass prior
             #could replace with LVK informed prior
             return logp_radius + logp_M_c
         else:
@@ -68,7 +69,6 @@ class redshift_model(raynest.model.Model):
     def log_likelihood(self,x):
         
         #need prob(D_L eff and M_c eff from GW data), use distribution from FIGARO?
-        #need to normalize this distribution with the prior on D_L eff and M_c eff ? not sure how to get this, somewhow from GW data
 
         #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
         #the pre-merger velocity along LOS
@@ -102,6 +102,7 @@ if __name__ == '__main__':
 
     dpgmm_file = 'conditioned_density_draws.pkl'
     #the conditional distribution (based on EM sky location)
+    #z_c from EM counterpart candidate
     z_c = 0.438
     GW_posteriors = load_density(dpgmm_file)
 
@@ -115,17 +116,16 @@ if __name__ == '__main__':
             post = np.array(f['combined']['posterior_samples'])
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
-    samples[:,0] = np.exp(samples[:,0])
+    #samples[:,0] = np.exp(samples[:,0])
     fig = corner(samples, labels = ['$r/r_s$','$M_c$','$RA$','$Dec$','$phase$'])
     fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
-    #now plotting a comparison of the figaro reconstruction versus the output for r/r_s and M_c
-    # 
-    # print(samples)
-    # print(GW_posteriors)
-    # print(samples[:,0])
-    # print(samples.shape)
-    # fig2=corner(GW_posteriors[:,0],labels = ['$r/r_s$']) 
-    fig2=corner(samples[:,[0,1]],labels = ['$r/r_s$','$M_c$']) 
-    #fig2=corner( (GW_posteriors[:,[0,1]]), labels = ['$r/r_s$','$M_c$']) 
-    fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
+    #now plotting a comparison of the figaro reconstruction versus the output for D_Leff and M_c
+    # need to return the D_L_eff distribution from my model? 
+
+    #here is a corner plot of only r and M_c
+    #fig2=corner(samples[:,[0,1]],labels = ['$r/r_s$','$M_c$']) 
+    #fig2=corner(samples[:,[1]],labels = ['$M_c$']) 
+    #fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
+
+    
