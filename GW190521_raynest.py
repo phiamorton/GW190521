@@ -3,6 +3,7 @@ import raynest.model
 import numpy as np
 import matplotlib.pyplot as plt 
 from corner import corner
+import h5py
 
 from scipy.special import logsumexp
 from numba import njit
@@ -25,12 +26,12 @@ class redshift_model(raynest.model.Model):
         self.z_c=z_c
         self.omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
         self.DL_em = self.omega.LuminosityDistance_double(self.z_c)
-        print(self.DL_em)
+        #print(self.DL_em)
         self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
                      'M_C', # M_C true chirp mass
                      'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
                      'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
-                     'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at pi/2), axis defined as orthogonal to LOS 
+                     'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
                      ]
 
     # equations using G=c=1
@@ -42,7 +43,8 @@ class redshift_model(raynest.model.Model):
     # 'M_eff', # M_eff is from GW data
 
        #need to use bounds in log space
-        self.bounds =[ [0, 3], [0.,300.], [0,np.pi], [0, 2* np.pi], [0, 2*np.pi] ]
+       #ISCO at 3R_S
+        self.bounds =[ [0, 3], [0.,300.], [0,2*np.pi], [-np.pi/2, np.pi/2], [0, 2*np.pi] ]
 
     
 
@@ -53,6 +55,7 @@ class redshift_model(raynest.model.Model):
         #width on resonances ~1-2 R_s centered on torque distances from Peng+ 2021 0.85 and 1.62 approx on log scale
         #source: https://arxiv.org/pdf/2104.07685.pdf
         #use radius prior from radius_prior.py
+
 
         if np.isfinite(logp):
             logp_radius = 0.#np.log(rad_prior(x['r'])) #radius prior (log Swarzchild radii)
@@ -69,10 +72,10 @@ class redshift_model(raynest.model.Model):
 
         #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
         #the pre-merger velocity along LOS
-        vel     = 1./np.sqrt((np.exp(x['r'])-1))
+        vel     = 1./np.sqrt(2*(np.exp(x['r'])-1))
         vel_LoS = vel * np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
         #gamma/lorentz factor
-        gamma = 1./np.sqrt(1 - vel**2)
+        gamma = 1./np.sqrt(1 - vel_LoS**2)
 
         #z_rel (r, angles)
         #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
@@ -87,9 +90,9 @@ class redshift_model(raynest.model.Model):
         M_eff = (1+self.z_c) * (1 + z_rel) * (1 + z_grav) * x['M_C']
 
         pt = np.atleast_2d([M_eff, D_eff])
-        #my likelihood is marginalized over D_L eff, M_c eff, angles, z_r, z_g, D_L
-        logl = self.draws[0]._fast_logpdf(pt)
-        # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)
+        #my likelihood is marginalized over D_L eff, M_c eff, z_r, z_g, D_L
+        logl = self.draws[0]._fast_logpdf(pt)  #one draw
+        # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)  #average of multiple draws
 
         return logl
 
@@ -97,7 +100,8 @@ if __name__ == '__main__':
 
     postprocess = False
 
-    dpgmm_file = 'draws_GW190521_mc_dist.pkl'
+    dpgmm_file = 'conditioned_density_draws.pkl'
+    #the conditional distribution (based on EM sky location)
     z_c = 0.438
     GW_posteriors = load_density(dpgmm_file)
 
@@ -108,10 +112,20 @@ if __name__ == '__main__':
         post = nest.posterior_samples.ravel()
     else:
         with h5py.File('inference/raynest.h5', 'r') as f:
-            post = np.array(f['posterior_samples']['combined'])
+            post = np.array(f['combined']['posterior_samples'])
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
     fig = corner(samples, labels = ['$r/r_s$','$M_c$','$RA$','$Dec$','$phase$'])
     fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
+    #now plotting a comparison of the figaro reconstruction versus the output for r/r_s and M_c
+    # 
+    # print(samples)
+    # print(GW_posteriors)
+    # print(samples[:,0])
+    # print(samples.shape)
+    # fig2=corner(GW_posteriors[:,0],labels = ['$r/r_s$']) 
+    fig2=corner(samples[:,[0,1]],labels = ['$r/r_s$','$M_c$']) 
+    #fig2=corner( (GW_posteriors[:,[0,1]]), labels = ['$r/r_s$','$M_c$']) 
+    fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
