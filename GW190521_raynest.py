@@ -44,7 +44,7 @@ class redshift_model(raynest.model.Model):
     # 'M_eff', # M_eff is from GW data
 
        #need to use bounds in log space
-       #ISCO at 3R_S
+       #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
         self.bounds =[ [0, 3], [0.,300.], [0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
 
     
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     dpgmm_file = 'conditioned_density_draws.pkl'
     #the conditional distribution (based on EM sky location)
-    #z_c from EM counterpart candidate
+    #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
     z_c = 0.438
     GW_posteriors = load_density(dpgmm_file)
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     gamma = 1./np.sqrt(1 - vel**2)
 
         #z_rel (r, angles)
-        #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
+        #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles, nah just make bounds on angle 0 to 2pi
     z_rel = gamma * (1 + vel_LoS) - 1
 
         #z_grav (r)
@@ -152,7 +152,9 @@ if __name__ == '__main__':
     
     fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c','D_L']) 
     fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
-    plt.show()
+    plt.show() #to clear I guess
+    
+    #gonna make some histograms 
     #print(r.shape, vel.shape, vel_LoS.shape)
     plt.bar(r,vel)
     plt.xlabel('distance from SMBH [$R_s$]')
