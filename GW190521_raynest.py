@@ -11,6 +11,7 @@ from numba import njit
 from figaro.cosmology import CosmologicalParameters
 from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
+from figaro.plot import plot_multidim 
 
 from radius_prior import rad_prior
 
@@ -72,14 +73,14 @@ class redshift_model(raynest.model.Model):
 
         #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
         #the pre-merger velocity along LOS
-        vel     = 1./np.sqrt(2*(np.exp(x['r'])-1))
+        vel = 1./np.sqrt(2*(np.exp(x['r'])-1))
         vel_LoS = vel * np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
         #gamma/lorentz factor
-        gamma = 1./np.sqrt(1 - vel_LoS**2)
+        gamma = 1./np.sqrt(1 - vel**2)
 
         #z_rel (r, angles)
         #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
-        z_rel = gamma * (1 - vel_LoS) - 1
+        z_rel = gamma * (1 + vel_LoS) - 1
 
         #z_grav (r)
         z_grav = 1./np.sqrt(1 - np.exp(-x['r'])) - 1 
@@ -98,7 +99,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess = False
+    postprocess = True
 
     dpgmm_file = 'conditioned_density_draws.pkl'
     #the conditional distribution (based on EM sky location)
@@ -116,7 +117,7 @@ if __name__ == '__main__':
             post = np.array(f['combined']['posterior_samples'])
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
-    #samples[:,0] = np.exp(samples[:,0])
+    samples[:,0] = np.exp(samples[:,0])
     fig = corner(samples, labels = ['$r/r_s$','$M_c$','$RA$','$Dec$','$phase$'])
     fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
@@ -124,8 +125,39 @@ if __name__ == '__main__':
     # need to return the D_L_eff distribution from my model? 
 
     #here is a corner plot of only r and M_c
-    #fig2=corner(samples[:,[0,1]],labels = ['$r/r_s$','$M_c$']) 
-    #fig2=corner(samples[:,[1]],labels = ['$M_c$']) 
-    #fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
+    omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
+    DL_em = omega.LuminosityDistance_double(z_c)
+    reconstruction= samples[:,[0,1]]
+    #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
+    r=samples[:,0]
+    vel=1./np.sqrt(2*((r)-1))
+    vel_LoS = vel * np.cos(samples[:,2]) * np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
+        #gamma/lorentz factor
+    gamma = 1./np.sqrt(1 - vel**2)
+
+        #z_rel (r, angles)
+        #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
+    z_rel = gamma * (1 + vel_LoS) - 1
+
+        #z_grav (r)
+    z_grav = 1./np.sqrt(1 -(reconstruction[:,0])**-1 ) - 1 
+        #D_L eff (z_c, z_rel, z_grav, D_L)
+    D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em 
+
+    reconstruction[:,0]=D_eff
+
+    M_eff = (1+z_c) * (1 + z_rel) * (1 + z_grav) * reconstruction[:,1]
+
+    reconstruction[:,1]=M_eff 
+    
+    fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c','D_L']) 
+    fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
+    plt.show()
+    #print(r.shape, vel.shape, vel_LoS.shape)
+    plt.bar(r,vel)
+    plt.xlabel('distance from SMBH [$R_s$]')
+    plt.ylabel('velocity [% c]')
+    plt.show()
+    
 
     
