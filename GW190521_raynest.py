@@ -80,7 +80,8 @@ class redshift_model(raynest.model.Model):
 
         #z_rel (r, angles)
         #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
-        z_rel = gamma * (1 + vel_LoS) - 1
+        #in Alejandros -vel_LoS but on wiki +vel_LoS (https://en.wikipedia.org/wiki/Relativistic_Doppler_effect)
+        z_rel = gamma * (1 - vel_LoS) - 1
 
         #z_grav (r)
         z_grav = 1./np.sqrt(1 - np.exp(-x['r'])) - 1 
@@ -99,7 +100,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess = True
+    postprocess = False
 
     dpgmm_file = 'conditioned_density_draws.pkl'
     #the conditional distribution (based on EM sky location)
@@ -137,7 +138,7 @@ if __name__ == '__main__':
 
         #z_rel (r, angles)
         #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles, nah just make bounds on angle 0 to 2pi
-    z_rel = gamma * (1 + vel_LoS) - 1
+    z_rel = gamma * (1 - vel_LoS) - 1
 
         #z_grav (r)
     z_grav = 1./np.sqrt(1 -(reconstruction[:,0])**-1 ) - 1 
