@@ -94,6 +94,7 @@ class redshift_model(raynest.model.Model):
         pt = np.atleast_2d([M_eff, D_eff])
         #my likelihood is marginalized over D_L eff, M_c eff, z_r, z_g, D_L
         logl = self.draws[0]._fast_logpdf(pt)  #one draw
+        logl-=2*np.log(D_eff) #remove GW prior
         # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)  #average of multiple draws
 
         return logl
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     reconstruction= samples[:,[0,1]]
     #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
     r=samples[:,0]
-    vel=1./np.sqrt(2*((r)-1))
+    vel=1./np.sqrt(2*(r-1))
     vel_LoS = vel * np.cos(samples[:,2]) * np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
         #gamma/lorentz factor
     gamma = 1./np.sqrt(1 - vel**2)
@@ -154,12 +155,15 @@ if __name__ == '__main__':
     fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c','D_L']) 
     fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
     plt.show() #to clear I guess
+    plt.close()
     
     #gonna make some histograms 
     #print(r.shape, vel.shape, vel_LoS.shape)
-    plt.bar(r,vel)
-    plt.xlabel('distance from SMBH [$R_s$]')
-    plt.ylabel('velocity [% c]')
+    fig, ((ax1,ax2),()) = plt.subplots()
+    ax.plot(r,vel)
+    ax.set_xlabel('distance from SMBH [$R_s$]')
+    ax.set_ylabel('velocity [% c]')
+    fig.savefig('whatever_name.pdf')
     plt.show()
 
     plt.bar(r,z_rel)
