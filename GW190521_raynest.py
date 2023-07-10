@@ -30,9 +30,10 @@ class redshift_model(raynest.model.Model):
         #print(self.DL_em)
         self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
                      'M_C', # M_C true chirp mass
-                     'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
-                     'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
-                     'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
+                     #'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
+                     #'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
+                     #'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
+                     'effective_angle'  #I dont really care about the relative angle, only need one effective angle between LoS and GW emission
                      ]
 
     # equations using G=c=1
@@ -45,7 +46,7 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
-        self.bounds =[ [0, 3], [0.,300.], [0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
+        self.bounds =[ [0, 3], [0.,300.], [-np.pi,np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
 
     
 
@@ -74,7 +75,7 @@ class redshift_model(raynest.model.Model):
         #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
         #the pre-merger velocity along LOS
         vel = 1./np.sqrt(2*(np.exp(x['r'])-1))
-        vel_LoS = vel * np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
+        vel_LoS = vel * np.cos(x['effective_angle']) #np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
         #gamma/lorentz factor
         gamma = 1./np.sqrt(1 - vel**2)
 
@@ -101,7 +102,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess = False
+    postprocess = True
 
     dpgmm_file = 'conditioned_density_draws.pkl'
     #the conditional distribution (based on EM sky location)
@@ -120,7 +121,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$r/r_s$','$M_c$','$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$r/r_s$','$M_c$', 'effective_angle']) #'$RA$','$Dec$','$phase$'])
     fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
     #now plotting a comparison of the figaro reconstruction versus the output for D_Leff and M_c
@@ -133,7 +134,7 @@ if __name__ == '__main__':
     #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
     r=samples[:,0]
     vel=1./np.sqrt(2*(r-1))
-    vel_LoS = vel * np.cos(samples[:,2]) * np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
+    vel_LoS = vel * np.cos(samples[:,2]) #* np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
         #gamma/lorentz factor
     gamma = 1./np.sqrt(1 - vel**2)
 
@@ -154,27 +155,27 @@ if __name__ == '__main__':
     
     fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c','D_L']) 
     fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
-    plt.show() #to clear I guess
-    plt.close()
     
     #gonna make some histograms 
     #print(r.shape, vel.shape, vel_LoS.shape)
-    fig, ((ax1,ax2),()) = plt.subplots()
-    ax.plot(r,vel)
-    ax.set_xlabel('distance from SMBH [$R_s$]')
-    ax.set_ylabel('velocity [% c]')
-    fig.savefig('whatever_name.pdf')
-    plt.show()
+    fig3 = plt.figure(figsize=(18, 3.5))
+    spec=fig3.add_gridspec(ncols=3, nrows=1)
+    ax0= fig3.add_subplot(spec[0,0])
+    ax0.scatter(r,vel)
+    ax0.set_xlabel('$R_s$')
+    ax0.set_ylabel('velocity [% c]')
+    
+    ax2= fig3.add_subplot(spec[0,1])
+    ax2.scatter(r,z_rel)
+    ax2.set_xlabel('$R_s$')
+    ax2.set_ylabel('$z_{rel}$')
 
-    plt.bar(r,z_rel)
-    plt.xlabel('distance from SMBH [$R_s$]')
-    plt.ylabel('$z_{rel}$')
-    plt.show()
+    ax3= fig3.add_subplot(spec[0,2])    
+    ax3.scatter(r,z_grav)
+    ax3.set_xlabel('$R_s$')
+    ax3.set_ylabel('$z_{grav}$')
 
-    plt.bar(r,z_grav)
-    plt.xlabel('distance from SMBH [$R_s$]')
-    plt.ylabel('$z_{grav}$')
-    plt.show()
+    fig3.savefig('effect_of_r_on_z')
     
 
     
