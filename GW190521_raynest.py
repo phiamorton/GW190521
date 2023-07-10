@@ -102,7 +102,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess = True
+    postprocess = False
 
     dpgmm_file = 'conditioned_density_draws.pkl'
     #the conditional distribution (based on EM sky location)
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$r/r_s$','$M_c$', 'effective_angle']) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_c$', '$\\theta_{effective}$']) #'$RA$','$Dec$','$phase$'])
     fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
     #now plotting a comparison of the figaro reconstruction versus the output for D_Leff and M_c
