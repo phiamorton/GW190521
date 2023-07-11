@@ -60,8 +60,8 @@ class redshift_model(raynest.model.Model):
 
 
         if np.isfinite(logp):
-            logp_radius = 0.
-            #logp_radius= np.log(rad_prior(x['r'])) #radius prior (log Swarzchild radii)
+            #logp_radius = 0.
+            logp_radius= np.log(rad_prior(x['r'])) #radius prior (log Swarzchild radii)
             logp_M_c = 0. #agnostic flat chirp mass prior
             #could replace with LVK informed prior
             return logp_radius + logp_M_c
@@ -176,6 +176,14 @@ if __name__ == '__main__':
     ax3.set_ylabel('$z_{grav}$')
 
     fig3.savefig('effect_of_r_on_z')
+
+
+
+#to do: 
+# transform M_c (observer frame) into M_1 and M_2 dist given same q 
+#need to figure out how to transform from observed to source frame
+#can report kick velocity? 
+#given r distribution and most probable r, calculate EM emission wavelengths and compare to EM candidate
     
 
     
