@@ -46,7 +46,7 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
-        self.bounds =[ [0, 3], [0.,300.], [-np.pi,np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
+        self.bounds =[ [0, 3], [0.,300.], [0,2*np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
 
     
 
@@ -82,7 +82,7 @@ class redshift_model(raynest.model.Model):
         #z_rel (r, angles)
         #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
         #in Alejandros -vel_LoS but on wiki +vel_LoS (https://en.wikipedia.org/wiki/Relativistic_Doppler_effect)
-        z_rel = gamma * (1 - vel_LoS) - 1
+        z_rel = gamma * (1 + vel_LoS) - 1     #is it + or - ???? I do not know??? https://physics.stackexchange.com/questions/61946/relativistic-doppler-effect-derivation 
 
         #z_grav (r)
         z_grav = 1./np.sqrt(1 - np.exp(-x['r'])) - 1 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     postprocess = False
 
-    dpgmm_file = 'conditioned_density_draws.pkl'
+    dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
     #the conditional distribution (based on EM sky location)
     #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
     z_c = 0.438
@@ -133,18 +133,18 @@ if __name__ == '__main__':
     reconstruction= samples[:,[0,1]]
     #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
     r=samples[:,0]
-    vel=1./np.sqrt(2*(r-1))
+    vel=1./np.sqrt(2*(r-1))  #the magnitude at a given distance from SMBH
     vel_LoS = vel * np.cos(samples[:,2]) #* np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
-        #gamma/lorentz factor
+    #gamma=lorentz factor
     gamma = 1./np.sqrt(1 - vel**2)
 
-        #z_rel (r, angles)
-        #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles, nah just make bounds on angle 0 to 2pi
-    z_rel = gamma * (1 - vel_LoS) - 1
+    #z_rel (r, angles)
+    #make bounds on angle 0 to 2pi, redshifted should be when v_LoS is negative (theta=pi)
+    z_rel = gamma * (1 + vel_LoS) - 1
 
-        #z_grav (r)
+    #z_grav (r)
     z_grav = 1./np.sqrt(1 -(reconstruction[:,0])**-1 ) - 1 
-        #D_L eff (z_c, z_rel, z_grav, D_L)
+    #D_L eff (z_c, z_rel, z_grav, D_L)
     D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em 
 
     reconstruction[:,0]=D_eff
@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     reconstruction[:,1]=M_eff 
     
-    fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c','D_L']) 
+    fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c effective','D_L effective']) 
     fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
     
     #gonna make some histograms 
