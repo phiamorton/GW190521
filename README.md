@@ -10,7 +10,7 @@ Where the velocity can be transformed to the velocity along the line of sight vi
 
 The relativistic velocity (due to motion along the line the sight) is:
 
-$z_{rel} = \gamma (1 - vel_{LoS}) - 1$, where $\gamma$ is the Lorentz factor
+$z_{rel} = \gamma (1 + vel_{LoS}) - 1$, where $\gamma$ is the Lorentz factor
 
 The gravitational redshift from the SMBH potential is:
 
