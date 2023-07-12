@@ -46,7 +46,10 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
-        self.bounds =[ [0, 3], [0.,300.], [0,2*np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
+        self.bounds =[ [np.log(3), 6], [0.,200.], [0,2*np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
+        #updated r bounds to show whole region where migration traps may occurr and 
+        # have minimum at ISCO, no longer gives invalid sqrt error
+        #LVK reported chirp mass (63.3 +19.6 -14.6) M_sun https://gwosc.org/eventapi/html/GWTC-2.1-confident/GW190521/v4/ 
 
     
 
@@ -61,7 +64,9 @@ class redshift_model(raynest.model.Model):
 
         if np.isfinite(logp):
             #logp_radius = 0.
-            logp_radius= np.log(rad_prior(x['r'])) #radius prior (log Swarzchild radii)
+            logp_radius= np.log(rad_prior(np.exp(x['r']))) #radius prior ( Swarzchild radii)
+            #do I need to normalize???
+            #when I add this prior and make r/R_s bounds larger: theta_eff peaks at 0 without the little symmetric peaks? weird?
             logp_M_c = 0. #agnostic flat chirp mass prior
             #could replace with LVK informed prior
             return logp_radius + logp_M_c
@@ -122,6 +127,7 @@ if __name__ == '__main__':
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
     fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_c$', '$\\theta_{effective}$']) #'$RA$','$Dec$','$phase$'])
+    #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
     #now plotting a comparison of the figaro reconstruction versus the output for D_Leff and M_c
