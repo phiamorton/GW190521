@@ -46,7 +46,7 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
-        self.bounds =[ [np.log(3), 6], [0.,200.], [0,2*np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
+        self.bounds =[ [np.log(3), 4], [0.,200.], [0,2*np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
         #updated r bounds to show whole region where migration traps may occurr and 
         # have minimum at ISCO, no longer gives invalid sqrt error
         #LVK reported chirp mass (63.3 +19.6 -14.6) M_sun https://gwosc.org/eventapi/html/GWTC-2.1-confident/GW190521/v4/ 
