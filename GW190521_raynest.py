@@ -78,7 +78,8 @@ class redshift_model(raynest.model.Model):
         #with Hubble constant and matterdensity, z from EM galaxy redshift, find D_L cosmological
         #omega = CosmologicalParameters(x['H_0'], x['om'], 1-x['om'], -1., 0.)
         #luminosity distance based on cosomology and z from EM counterpart
-        DL_em = CosmologicalParameters(x['H_0'], x['om'], 1-x['om'], -1., 0.).LuminosityDistance_double(self.z_c)
+        DL_em = CosmologicalParameters(x['H_0']/100, x['om'], 1-x['om'], -1., 0.).LuminosityDistance_double(self.z_c)
+        #remember to normalize H_0
         #DL_em=omega.LuminosityDistance_double(self.z_c)
         #need prob(D_L eff and M_c eff from GW data), use distribution from FIGARO?
 
@@ -215,12 +216,12 @@ if __name__ == '__main__':
 
 #testing eqn 58 in Torres-Orjuela
 
-c = 299792.458
-H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
+# c = 299792.458
+# H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
 
-#want to add Planck value for comparison
+# #want to add Planck value for comparison
 
-fig4=corner(H)
-fig4.savefig('H_0estimate')
+# fig4=corner(H)
+# fig4.savefig('H_0estimate')
 
     
