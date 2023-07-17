@@ -25,16 +25,16 @@ class redshift_model(raynest.model.Model):
         self.N_draws = len(self.draws)
         self.ones    = np.ones(self.N_draws)
         self.z_c=z_c
-        self.omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
-        self.DL_em = self.omega.LuminosityDistance_double(self.z_c)
-        #print(self.DL_em)
+        
+        
         self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
                      'M_C', # M_C true chirp mass
                      #'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
-                     'effective_angle'  #I dont really care about the relative angle, only need one effective angle between LoS and GW emission
-                     ]
+                     'cos_effective_angle', #I dont really care about the relative angle, only need one effective angle between LoS and GW emission, sampled uniform in cos
+                     'H_0',#HUbble constant
+                     'om'] #matter density
 
     # equations using G=c=1
     #orbital phases defined in the plane (ie along the disk from bird's eye view)
@@ -46,7 +46,7 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
-        self.bounds =[ [np.log(3), 4], [0.,200.], [0,2*np.pi]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
+        self.bounds =[ [np.log(3), 4], [0.,200.], [-1,1],[50,80], [0,1]] #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ]
         #updated r bounds to show whole region where migration traps may occurr and 
         # have minimum at ISCO, no longer gives invalid sqrt error
         #LVK reported chirp mass (63.3 +19.6 -14.6) M_sun https://gwosc.org/eventapi/html/GWTC-2.1-confident/GW190521/v4/ 
@@ -68,31 +68,37 @@ class redshift_model(raynest.model.Model):
             #do I need to normalize???
             #when I add this prior and make r/R_s bounds larger: theta_eff peaks at 0 without the little symmetric peaks? weird?
             logp_M_c = 0. #agnostic flat chirp mass prior
-            #could replace with LVK informed prior
+            #flat mass distribution in AGN source: ???
+           
             return logp_radius + logp_M_c
         else:
             return -np.inf
 
     def log_likelihood(self,x):
-        
+        #with Hubble constant and matterdensity, z from EM galaxy redshift, find D_L cosmological
+        #omega = CosmologicalParameters(x['H_0'], x['om'], 1-x['om'], -1., 0.)
+        #luminosity distance based on cosomology and z from EM counterpart
+        DL_em = CosmologicalParameters(x['H_0'], x['om'], 1-x['om'], -1., 0.).LuminosityDistance_double(self.z_c)
+        #DL_em=omega.LuminosityDistance_double(self.z_c)
         #need prob(D_L eff and M_c eff from GW data), use distribution from FIGARO?
 
         #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
         #the pre-merger velocity along LOS
         vel = 1./np.sqrt(2*(np.exp(x['r'])-1))
-        vel_LoS = vel * np.cos(x['effective_angle']) #np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
+        vel_LoS = vel * (x['cos_effective_angle']) #np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
         #gamma/lorentz factor
         gamma = 1./np.sqrt(1 - vel**2)
 
         #z_rel (r, angles)
-        #uh oh need to check that I am looking at z_rel redshifted not blueshifted- need to be careful about angles
+        #uh oh am  I looking at z_rel redshifted not blueshifted?- need to be careful about angles
+        #peak at theta=pi ==blueshift
         #in Alejandros -vel_LoS but on wiki +vel_LoS (https://en.wikipedia.org/wiki/Relativistic_Doppler_effect)
         z_rel = gamma * (1 + vel_LoS) - 1     #is it + or - ???? I do not know??? https://physics.stackexchange.com/questions/61946/relativistic-doppler-effect-derivation 
 
         #z_grav (r)
         z_grav = 1./np.sqrt(1 - np.exp(-x['r'])) - 1 
         #D_L eff (z_c, z_rel, z_grav, D_L)
-        D_eff = (1+z_rel)**2 * (1+z_grav) * self.DL_em
+        D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em
 
         #M_c eff (z_c, z_r, z_g, M_c)
         M_eff = (1+self.z_c) * (1 + z_rel) * (1 + z_grav) * x['M_C']
@@ -107,7 +113,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess = False
+    postprocess=False 
 
     dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
     #the conditional distribution (based on EM sky location)
@@ -126,7 +132,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_c$', '$\\theta_{effective}$']) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_c$', '$cos(\\theta_{effective})$', '$H_0$', '$\\Omega_m$']) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
@@ -187,9 +193,34 @@ if __name__ == '__main__':
 
 #to do: 
 # transform M_c (observer frame) into M_1 and M_2 dist given same q 
-#need to figure out how to transform from observed to source frame
-#can report kick velocity? 
-#given r distribution and most probable r, calculate EM emission wavelengths and compare to EM candidate
-    
+#unlike our previous expectations, the source is blueshifted, favoring an even larger mass
+#how to get confidence interval values to report? -from figaro??
+
+#can report kick velocity? somehow? cannot seem to find a model for this, but it is already favored to be moving at relativistic speeds premerger
+#could I use the post merger kick velocity reported by LVK https://dcc.ligo.org/public/0170/G2001426/002/GW190521_final.pdf 
+#given r distribution and most probable r, calculate EM emission wavelengths and compare to EM candidate, requires choosing an AGN gas model
+
+#could do some model selection and report Bayes factors for 
+# 1) velocity dependent on radius vs not (ie around SMBH or not?) 
+
+#report Hubble constant and matter density 
+#https://arxiv.org/pdf/1307.2638.pdf
+# z<<1 D_L= cz/H_0
+#eqn 1 in Mukherjee https://arxiv.org/pdf/2009.14199.pdf
+#probabilility of cosmo params = int over d_l p(D_L given GW d_l, z_c, cosmo param)*prior on d_l-luminosity dist and cosmo params
+#priors are uniform on cosmological parameters as given in Mukherjee
+#marginalize over w_0 EoS of dark energy
+#vs https://arxiv.org/pdf/1909.08627.pdf Mukherjee 2019
+#H=(cz+velocity)/D_L
+
+#testing eqn 58 in Torres-Orjuela
+
+c = 299792.458
+H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
+
+#want to add Planck value for comparison
+
+fig4=corner(H)
+fig4.savefig('H_0estimate')
 
     
