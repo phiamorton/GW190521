@@ -126,11 +126,11 @@ if __name__ == '__main__':
 
     mymodel= redshift_model(z_c, GW_posteriors)
     if not postprocess:
-        nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000, output = 'inference/')
+        nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000, output = 'inference_H/')
         nest.run(corner = True)
         post = nest.posterior_samples.ravel()
     else:
-        with h5py.File('inference/raynest.h5', 'r') as f:
+        with h5py.File('inference_H/raynest.h5', 'r') as f:
             post = np.array(f['combined']['posterior_samples'])
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
@@ -150,13 +150,33 @@ if __name__ == '__main__':
 #H=(cz+velocity)/D_L
 
 #testing eqn 58 in Torres-Orjuela
+omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
+DL_em = omega.LuminosityDistance_double(z_c)
+r= samples[:,0]
+    #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
+ 
+vel=1./np.sqrt(2*(r-1))  #the magnitude at a given distance from SMBH
+vel_LoS = vel * samples[:,2] #* np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
+    #gamma=lorentz factor
+gamma = 1./np.sqrt(1 - vel**2)
 
-# c = 299792.458
-#H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
+    #z_rel (r, angles)
+    #make bounds on angle 0 to 2pi, redshifted should be when v_LoS is negative (theta=pi)
+z_rel = gamma * (1 + vel_LoS) - 1
+
+    #z_grav (r)
+z_grav = 1./np.sqrt(1 -1./r ) - 1 
+    #D_L eff (z_c, z_rel, z_grav, D_L)
+D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em 
+
+M_eff = (1+z_c) * (1 + z_rel) * (1 + z_grav) * samples[:, 1]
+
+c = 299792.458
+H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
 
 # #want to add Planck value for comparison
 
-#fig4=corner(H, truths=[67.4])
-#fig4.savefig('H_0estimate')
+fig4=corner(H, truths=[67.4])
+fig4.savefig('H_0estimate_redshift_rpriormodel')
 
     
