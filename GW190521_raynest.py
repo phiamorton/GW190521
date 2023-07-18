@@ -158,13 +158,13 @@ if __name__ == '__main__':
     z_rel = gamma * (1 + vel_LoS) - 1
 
     #z_grav (r)
-    z_grav = 1./np.sqrt(1 -(reconstruction[:,0])**-1 ) - 1 
+    z_grav = 1./np.sqrt(1 -1./r) - 1 
     #D_L eff (z_c, z_rel, z_grav, D_L)
     D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em 
 
     reconstruction[:,0]=D_eff
 
-    M_eff = (1+z_c) * (1 + z_rel) * (1 + z_grav) * reconstruction[:,1]
+    M_eff = (1+z_c) * (1 + z_rel) * (1 + z_grav) * samples[:,[1]]
 
     reconstruction[:,1]=M_eff 
     
