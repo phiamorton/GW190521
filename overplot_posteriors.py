@@ -38,7 +38,7 @@ samples_out = np.column_stack([post[lab] for lab in mymodel.names])
 
 omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
 DL_em = omega.LuminosityDistance_double(z_c)
-print(DL_em)
+#print(DL_em)
 reconstruction= samples_out[:,[0,1]]
     #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
 r=np.exp(samples_out[:,0])
@@ -78,7 +78,6 @@ draws = load_density(filepath)
 #conditioned draws we are drawing from for comparison
 conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, filter=True, tol=1e-3)
 
-
 #want to plot redshift model M_c eff and D_L posterior
 #vs conditioned LVK dist.
 #vs LVK non conditioned dist. 
@@ -86,13 +85,11 @@ conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, fi
 
 # fig=plot_multidim(conditioned_draws, samples = samples_out[:,[1,0]],labels = [ 'M_c effective ',' D_L effective']) 
 fig=plot_multidim(conditioned_draws, labels = ['M_c', 'D_{effective}'], units=['M_\\odot', 'Mpc'])
-fig=corner(samples_out, color='green',fig=fig, label='redshift model', hist_kwargs ={'density':True})
-fig=corner(samples_in[:,[0,1]], color='grey', fig=fig, label='LVK', hist_kwargs ={'density':True})
+fig=corner(samples_out, color='purple', fig=fig, label='redshift model', hist_kwargs ={'density':True, 'label':'redshifted model'})
+fig=corner(samples_in[:,[0,1]], color='grey', fig=fig, label='LVK', plot_density=False, hist_kwargs ={'density':True, 'label':'LVK model'})
 
 #agh making legends is stupid!!
-import matplotlib.lines as mlines
-redshift_line=mlines.Line2D([], [], color='green', label='redshifted model')
-LVK_line=mlines.Line2D([], [], color='grey', label='LVK unconditioned')
-fig.legend(handles=[redshift_line, LVK_line], loc='upper right')
+fig.axes[1].legend(*fig.axes[0].get_legend_handles_labels(), loc='center', frameon=False)
 
 fig.savefig('overplot.pdf')
+
