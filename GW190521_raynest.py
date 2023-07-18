@@ -115,7 +115,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess=False 
+    postprocess=True 
 
     dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
     #the conditional distribution (based on EM sky location)
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     samples[:,0] = np.exp(samples[:,0])
     fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_c$', '$cos(\\theta_{effective})$']) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
-    fig.savefig('joint_posterior_withr.pdf', bbox_inches = 'tight')
+    fig.savefig('joint_posterior.pdf', bbox_inches = 'tight')
 
     #now plotting a comparison of the figaro reconstruction versus the output for D_Leff and M_c
     # need to return the D_L_eff distribution from my model? 
@@ -167,7 +167,7 @@ if __name__ == '__main__':
 
     reconstruction[:,1]=M_eff 
     
-    fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c effective','D_L effective']) 
+    fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_c effective ',' D_L effective']) 
     fig2.savefig('GW_posterior_vs_reconstruction.pdf', bbox_inches = 'tight')
     
     #gonna make some histograms 
@@ -191,8 +191,6 @@ if __name__ == '__main__':
 
     # fig3.savefig('effect_of_r_on_z')
 
-
-
 #to do: 
 # transform M_c (observer frame) into M_1 and M_2 dist given same q 
 #unlike our previous expectations, the source is blueshifted, favoring an even larger mass
@@ -201,12 +199,7 @@ if __name__ == '__main__':
 #overplot LVK posteriors? when applicablle
 #LVK posterior vs marginalized posterior
 
-
-
-#can report kick velocity? somehow? cannot seem to find a model for this, but it is already favored to be moving at relativistic speeds premerger
-#could I use the post merger kick velocity reported by LVK https://dcc.ligo.org/public/0170/G2001426/002/GW190521_final.pdf 
 #given r distribution and most probable r, calculate EM emission wavelengths and compare to EM candidate, requires choosing an AGN gas model
 
 #could do some model selection and report Bayes factors for 
 # 1) EM counterpart + redshift VS no association (use fixed H0)
-
