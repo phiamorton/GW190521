@@ -88,7 +88,7 @@ else:
     with h5py.File('inference/raynest.h5', 'r') as f:
         post1 = np.array(f['combined']['posterior_samples'])
 
-samples1 = np.column_stack([post1[lab] for lab in notmymodel.names])
+samples1 = np.column_stack([post1[lab1] for lab1 in notmymodel.names])
 
 z_EM = 0.438
 mymodel= redshift_model(z_EM, GW_posteriors)
@@ -102,12 +102,12 @@ else:
 
 samples = np.column_stack([post[lab] for lab in mymodel.names])
 
-fig = corner(samples1, labels = ['$M_c$', 'z_c'], truths = [63.3])
-fig.savefig('noEM_posterior.pdf', bbox_inches = 'tight')
+
 
 print("estimated logZ for no redshift = {0} ".format(nest1.logZ))
 print("estimated logZ for redshift = {0} ".format(nest.logZ))
 print("Log Bayes' Factor redshift model vs nonredshifted= ",nest.logZ/nest1.logZ) 
 
 
-
+fig = corner(samples1, labels = ['$M_c$', 'z_c'], truths = [63.3, None])
+fig.savefig('noEM_posterior.pdf', bbox_inches = 'tight')
