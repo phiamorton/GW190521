@@ -107,15 +107,16 @@ class redshift_model(raynest.model.Model):
 
         pt = np.atleast_2d([M_eff, D_eff])
         #my likelihood is marginalized over D_L eff, M_c eff, z_r, z_g, D_L
-        logl = self.draws[0]._fast_logpdf(pt)  #one draw
-        logl-=2*np.log(D_eff) #remove GW prior
+        #logl = self.draws[0]._fast_logpdf(pt)  #one draw
+        logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws[:10]]), self.ones) - np.log(self.N_draws)  #average of multiple d
+        logl -= 2*np.log(D_eff) #remove GW prior
         # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)  #average of multiple draws
 
         return logl
 
 if __name__ == '__main__':
 
-    postprocess=True 
+    postprocess=False
 
     dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
     #the conditional distribution (based on EM sky location)
@@ -148,7 +149,7 @@ if __name__ == '__main__':
     #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
     r=samples[:,0]
     vel=1./np.sqrt(2*(r-1))  #the magnitude at a given distance from SMBH
-    vel_LoS = vel * np.cos(samples[:,2]) #* np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
+    vel_LoS = vel * samples[:,2] #* np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
     #gamma=lorentz factor
     gamma = 1./np.sqrt(1 - vel**2)
 
@@ -200,6 +201,8 @@ if __name__ == '__main__':
 #LVK posterior vs marginalized posterior
 
 #given r distribution and most probable r, calculate EM emission wavelengths and compare to EM candidate, requires choosing an AGN gas model
+#https://arxiv.org/pdf/2301.07111.pdf 
+
 
 #could do some model selection and report Bayes factors for 
 # 1) EM counterpart + redshift VS no association (use fixed H0)
