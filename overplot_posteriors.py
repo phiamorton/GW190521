@@ -26,7 +26,7 @@ mymodel= redshift_model(z_c, GW_posteriors)
 
 postprocess=True 
 if not postprocess:
-    nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000, output = 'inference/')
+    nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000) #, output = 'inference/')
     nest.run(corner = True)
     post = nest.posterior_samples.ravel()
 else:
