@@ -17,6 +17,8 @@ from radius_prior import rad_prior
 
 #model with redshift:
 from GW190521_raynest import redshift_model
+from GW190521_rpriorcopy import redshift_model_rprior
+from GW190521_norprior import redshift_model_norprior
 
 
 class noEM_model(raynest.model.Model):
@@ -81,7 +83,7 @@ postprocess=False
 notmymodel= noEM_model(GW_posteriors)
 
 if not postprocess:
-    nest1 = raynest.raynest(notmymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000, output = 'inference/')
+    nest1 = raynest.raynest(notmymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000) #, output = 'inference/')
     nest1.run(corner = True)
     post1 = nest1.posterior_samples.ravel()
 else:
@@ -111,3 +113,14 @@ print("Log Bayes' Factor redshift model vs nonredshifted= ",nest.logZ/nest1.logZ
 
 fig = corner(samples1, labels = ['$M_c$', 'z_c'], truths = [63.3, None])
 fig.savefig('noEM_posterior.pdf', bbox_inches = 'tight')
+
+comparerprior=True
+if comparerprior==True:
+    nor_model= redshift_model_norprior(z_EM, GW_posteriors)
+    nest_nor = raynest.raynest(nor_model, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000) #output = 'inference/')
+    nest_nor.run(corner = True)
+    post_nor = nest.posterior_samples.ravel()
+    samples_nor = np.column_stack([post_nor[lab] for lab in nor_model.names])
+    print("estimated logZ for no redshift = {0} ".format(nest_nor.logZ))
+    print("estimated logZ for redshift = {0} ".format(nest.logZ))
+    print("Log Bayes' Factor r prior vs no r prior redshift model",nest.logZ/nest_nor.logZ) 
