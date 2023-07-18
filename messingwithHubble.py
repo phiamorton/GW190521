@@ -152,11 +152,11 @@ if __name__ == '__main__':
 #testing eqn 58 in Torres-Orjuela
 
 # c = 299792.458
-# H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
+#H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
 
 # #want to add Planck value for comparison
 
-# fig4=corner(H)
-# fig4.savefig('H_0estimate')
+#fig4=corner(H, truths=[67.4])
+#fig4.savefig('H_0estimate')
 
     
