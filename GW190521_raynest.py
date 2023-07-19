@@ -13,7 +13,7 @@ from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
 from figaro.plot import plot_multidim 
 
-from radius_prior import rad_prior
+from priors import rad_prior
 
 class redshift_model(raynest.model.Model):
 
@@ -28,7 +28,7 @@ class redshift_model(raynest.model.Model):
         
         
         self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
-                     'M_C', # M_C true chirp mass
+                     'M_C', # M_C true chirp mass 
                      #'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     postprocess=False
 
-    dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
+    dpgmm_file = 'conditioned_density_draws.pkl' # M_c in detector frame 
     #the conditional distribution (based on EM sky location)
     #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
     z_c = 0.438
