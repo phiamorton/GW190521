@@ -18,8 +18,8 @@ dec_EM_rad=dec_EM/180*np.pi
 draws = load_density(filepath)
 
 conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, filter=True, tol=1e-3)
-plot_multidim(conditioned_draws, name= 'conditioned_distribution', labels=['M_c', 'D_L'], units=['M_\\odot', 'Mpc'])
+plot_multidim(conditioned_draws, name= 'conditioned_distribution_M1', labels=['M_1', 'D_L'], units=['M_\\odot', 'Mpc'])
 
-save_density(conditioned_draws, name='conditioned_density_draws')
+save_density(conditioned_draws, name='conditioned_density_draws_M1')
 
 print([d.n_cl for d in conditioned_draws])
