@@ -1,9 +1,44 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import laplace
+from scipy.interpolate import interp1d
 
+"""
+LVK best estimates for the PL+Peak parameters
+Data from Abbott+ (2022) https://arxiv.org/abs/2111.03634
+Please note that Abbott+ does not provide an estimate for the peak width, we obtained it from the data release directly
+"""
+alpha_pl   = 3.5   #
+mu_peak    = 34.   # Msun
+sigma_peak = 4.6   # Msun
+w          = 0.038 #
+m_min      = 3.    # Msun
 
+# Useful quantities
+log_w     = np.log(w)
+log_1mw   = np.log(1.-w)
+norm_pl   = np.log(alpha_pl-1) - (1-alpha_pl)*np.log(m_min)
+norm_peak = -0.5*np.log(2*np.pi) - np.log(sigma_peak)
 
+# LVK interpolant
+LVK_o3 = np.genfromtxt('lvk_log_plpeak.txt')
+pl_peak_interpolant = interp1d(LVK_o3[:,0], LVK_o3[:,1], fill_value = 'extrapolate')
+
+def pl_peak_no_tapering(m):
+    """
+    Power-law + peak model without any tapering (low mass or high mass).
+    """
+    log_PL   = -alpha_pl*np.log(m) + norm_pl
+    log_peak = -0.5*((m-mu_peal)/sigma_peak)**2 + norm_peak
+    return np.logaddexp(log_1mw+log_PL, log_w+log_peak)
+
+def pl_peak_LVK(m):
+    """
+    LVK Power-law + peak model as in Abbott et al (2022) https://arxiv.org/abs/2111.03634
+    Data from https://zenodo.org/record/7843926
+    """
+    return pl_peak_interpolant(m)
+    
 def rad_prior(r):
     #linear in log scale:
     #logslope= 1
