@@ -29,7 +29,7 @@ def pl_peak_no_tapering(m):
     Power-law + peak model without any tapering (low mass or high mass).
     """
     log_PL   = -alpha_pl*np.log(m) + norm_pl
-    log_peak = -0.5*((m-mu_peal)/sigma_peak)**2 + norm_peak
+    log_peak = -0.5*((m-mu_peak)/sigma_peak)**2 + norm_peak
     return np.logaddexp(log_1mw+log_PL, log_w+log_peak)
 
 def pl_peak_LVK(m):
