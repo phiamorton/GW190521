@@ -12,7 +12,8 @@ from figaro.cosmology import CosmologicalParameters
 
 #LVK distribution:
 samples_in, name = load_single_event('GW190521.h5',par= ['mc_detect','luminosity_distance']) 
-#detector frame M_C?
+#detector frame M_C
+#this should be the same because both models should predict what we observe
 
 
 #redshifted model from conditioned draws:
@@ -24,14 +25,9 @@ GW_posteriors = load_density(dpgmm_file)
 
 mymodel= redshift_model(z_c, GW_posteriors)
 
-postprocess=True 
-if not postprocess:
-    nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000) #, output = 'inference/')
-    nest.run(corner = True)
-    post = nest.posterior_samples.ravel()
-else:
-        with h5py.File('inference/raynest.h5', 'r') as f:
-            post = np.array(f['combined']['posterior_samples'])
+#post process
+with h5py.File('inference/raynest.h5', 'r') as f:
+        post = np.array(f['combined']['posterior_samples'])
 
 
 samples_out = np.column_stack([post[lab] for lab in mymodel.names])
@@ -65,7 +61,7 @@ samples_out = np.array([M_eff, D_eff]).T
 from figaro.plot import plot_multidim 
 from figaro.marginal import condition
 
-#LVK draws pkl file
+#LVK draws pkl file, unconditioned on EM sky location
 filepath= 'draws_GW190521.pkl'
 
 ra_EM, dec_EM = 192.42625 , 34.8247
@@ -85,7 +81,7 @@ conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, fi
 
 # fig=plot_multidim(conditioned_draws, samples = samples_out[:,[1,0]],labels = [ 'M_c effective ',' D_L effective']) 
 fig=plot_multidim(conditioned_draws, labels = ['M_c', 'D_{effective}'], units=['M_\\odot', 'Mpc'])
-fig=corner(samples_out, color='purple', fig=fig, label='redshift model', hist_kwargs ={'density':True, 'label':'redshifted model'})
+fig=corner(samples_out, color='magenta', fig=fig, label='redshift model', hist_kwargs ={'density':True, 'label':'redshifted model'})
 fig=corner(samples_in[:,[0,1]], color='grey', fig=fig, label='LVK', plot_density=False, hist_kwargs ={'density':True, 'label':'LVK model'})
 
 #agh making legends is stupid!!
