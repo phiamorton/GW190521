@@ -13,7 +13,7 @@ from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
 from figaro.plot import plot_multidim 
 
-from radius_prior import rad_prior
+from priors import rad_prior
 
 class redshift_model(raynest.model.Model):
 
@@ -172,9 +172,10 @@ D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em
 M_eff = (1+z_c) * (1 + z_rel) * (1 + z_grav) * samples[:, 1]
 
 c = 299792.458
-H = c*z_c/D_eff #km/s/MpC #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
+H = c*z_c/D_eff #km/s/MpC 
+#https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
 
-# #want to add Planck value for comparison
+# #want to add Planck value for comparison, truths
 
 fig4=corner(H, truths=[67.4])
 fig4.savefig('H_0estimate_redshift_rpriormodel')
