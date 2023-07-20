@@ -2,9 +2,9 @@ from os import name
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy
-from scipy.interpolate import RegularGridInterpolator
+from scipy.interpolate import RegularGridInterpolator, interp2d
 
-from scipy.stats import multivariate_normal as mn
+#from scipy.stats import multivariate_normal as mn
 
 from corner import corner
 
@@ -28,22 +28,21 @@ GW_posteriors = load_density(dpgmm_file)
 draws = load_density(dpgmm_file)
 
 #bounds over which to interpolate for the parameters
-M_1=np.linspace(0,300,202)[1:-1]
+M_1=np.linspace(0,300,102)[1:-1]
 D_L=np.linspace(0,10000,202)[1:-1]
 #print(M_1.shape, D_L.shape)
 MM, DD = np.meshgrid(M_1, D_L)
 
-draws_pdf = np.log(np.mean([d.pdf(np.array([MM.flatten(), DD.flatten()]).T) for d in draws], axis = 0).reshape(len(M_1), len(D_L)) )
+draws_pdf = np.log(np.mean([d.pdf(np.array([MM.flatten(), DD.flatten()]).T) for d in draws], axis = 0).reshape(len(D_L), len(M_1)) )
 
-interp_figaro= RegularGridInterpolator((M_1, D_L), draws_pdf.T, bounds_error=False)
-
+interp_figaro= interp2d(M_1, D_L, draws_pdf, bounds_error=False)
 
 # print(interp_figaro([100,5000]))
 # print(np.mean([d.pdf([100,5000]) for d in draws], axis = 0))
 # print(interp_figaro([80,4000]))
 # print(np.mean([d.pdf([80,4000]) for d in draws], axis = 0))
 
-plt.contourf(DD, MM, interp_figaro(np.array([MM.flatten(), DD.flatten()]).T).reshape(len(M_1),len(D_L)))
+plt.contourf( DD, MM, interp_figaro(M_1, D_L))
 # corner(M_1, D_L, draws[0].pdf(np.array([MM.flatten(), DD.flatten()]).T).reshape(len(M_1), len(D_L)) )
 plt.savefig("checking_interpolant.pdf")
 
