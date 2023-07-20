@@ -33,9 +33,10 @@ D_L=np.linspace(0,10000,202)[1:-1]
 #print(M_1.shape, D_L.shape)
 MM, DD = np.meshgrid(M_1, D_L)
 
-draws_pdf = np.mean([d.pdf(np.array([MM.flatten(), DD.flatten()]).T) for d in draws], axis = 0).reshape(len(M_1), len(D_L))
+draws_pdf = np.log(np.mean([d.pdf(np.array([MM.flatten(), DD.flatten()]).T) for d in draws], axis = 0).reshape(len(M_1), len(D_L)) )
 
-interp_figaro= RegularGridInterpolator((M_1, D_L), draws_pdf.T)
+interp_figaro= RegularGridInterpolator((M_1, D_L), draws_pdf.T, bounds_error=False)
+
 
 # print(interp_figaro([100,5000]))
 # print(np.mean([d.pdf([100,5000]) for d in draws], axis = 0))
@@ -53,5 +54,3 @@ with open(filename, 'wb') as f:
 
 #with open(dpgmm_file, 'rb') as f:
 #     GW_posteriors= pickle.load(f)
-
-#
