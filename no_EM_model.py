@@ -35,7 +35,7 @@ class noEM_model_plpk(raynest.model.Model):
         logp=super(noEM_model_plpk,self).log_prior(x)
 
         if np.isfinite(logp):    
-            logp_M_c = pl_peak_LVK(x['M_C']) #power law +peak ??
+            logp_M_c = pl_peak_LVK(x['M_1']) #power law +peak ??
             logp_z   = np.log(self.omega.ComovingVolumeElement_double(x['z_c'])) #unifrom in comoving volume 
             return logp_M_c +logp_z
         else:
@@ -58,7 +58,7 @@ GW_posteriors = load_density(dpgmm_file)
 
 noEM_plpk_model= noEM_model_plpk(GW_posteriors)
 
-postprocess=True
+postprocess=False
 if not postprocess:
     nest_noEM_plpk = raynest.raynest(noEM_plpk_model, verbose=2, nnest=1, nensemble=1, nlive=2000, maxmcmc=5000, output = 'inference_noEM_plpk/')
     nest_noEM_plpk.run(corner = True)
