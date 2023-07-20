@@ -45,7 +45,7 @@ if marginal_density:
 
     plt.contourf( DD, MM, interp_figaro(M_1, D_L))
     # corner(M_1, D_L, draws[0].pdf(np.array([MM.flatten(), DD.flatten()]).T).reshape(len(M_1), len(D_L)) )
-    plt.savefig("checking_interpolant.pdf")
+    plt.savefig("checking_interpolant_marginal.pdf")
 
     import pickle
     filename='Marginalized_interpolation.pkl'
@@ -70,9 +70,9 @@ if conditional_density:
 
     interp_figaro= interp2d(M_1, D_L, draws_pdf, bounds_error=False)
 
-    # plt.contourf( DD, MM, interp_figaro(M_1, D_L))
-    # # corner(M_1, D_L, draws[0].pdf(np.array([MM.flatten(), DD.flatten()]).T).reshape(len(M_1), len(D_L)) )
-    # plt.savefig("checking_interpolant.pdf")
+    plt.contourf( DD, MM, interp_figaro(M_1, D_L))
+    # corner(M_1, D_L, draws[0].pdf(np.array([MM.flatten(), DD.flatten()]).T).reshape(len(M_1), len(D_L)) )
+    plt.savefig("checking_interpolant_conditional.pdf")
 
     import pickle
     filename='conditional_interpolation.pkl'
