@@ -64,7 +64,7 @@ class noEM_model_plpk(raynest.model.Model):
 
 noEM_plpk_model= noEM_model_plpk(GW_posteriors)
 
-postprocess=False
+postprocess=True
 if not postprocess:
     nest_noEM_plpk = raynest.raynest(noEM_plpk_model, verbose=2, nnest=1, nensemble=1, nlive=2000, maxmcmc=5000, output = 'inference_noEM_plpk/')
     nest_noEM_plpk.run(corner = True)
@@ -75,7 +75,7 @@ else:
         post_noEM_plpk = np.array(f['combined']['posterior_samples'])
 
 samples1 = np.column_stack([post_noEM_plpk[lab1] for lab1 in noEM_plpk_model.names])
-fig = corner(samples1, labels = ['$M_1$', 'z_c'], truths = [63.3, None])
+fig = corner(samples1, labels = ['$M_1$', 'z_c'], truths = [85.5, None])
 fig.savefig('inference_noEM_plpk/noEM_plpk_posterior.pdf', bbox_inches = 'tight')
 
 
@@ -100,7 +100,7 @@ class noEM_model_plpk_no_tapering(raynest.model.Model):
         if np.isfinite(logp):    
             logp_M_c = pl_peak_no_tapering(x['M_1']) #power law +peak  but without the tapering
             logp_z   = np.log(self.omega.ComovingVolumeElement_double(x['z_c'])) #unifrom in comoving volume 
-            return logp_M_c +logp_z
+            return logp_M_c + logp_z
         else:
             return -np.inf
 
@@ -114,7 +114,7 @@ class noEM_model_plpk_no_tapering(raynest.model.Model):
 
 noEM_plpk_no_tapering_model= noEM_model_plpk_no_tapering(GW_posteriors)
 
-postprocess=False
+postprocess=True
 if not postprocess:
     nest_noEM_plpk_no_tapering = raynest.raynest(noEM_plpk_no_tapering_model, verbose=2, nnest=1, nensemble=1, nlive=2000, maxmcmc=5000, output = 'inference_no_tapering/')
     nest_noEM_plpk_no_tapering.run(corner = True)
@@ -125,5 +125,5 @@ else:
         post_noEM_plpk_no_tapering = np.array(f['combined']['posterior_samples'])
 
 samples2 = np.column_stack([post_noEM_plpk_no_tapering[lab1] for lab1 in noEM_plpk_no_tapering_model.names])
-fig = corner(samples2, labels = ['$M_1$', 'z_c'], truths = [63.3, None])
+fig = corner(samples2, labels = ['$M_1$', 'z_c'], truths = [85.5, None])
 fig.savefig('inference_no_tapering/noEM_plpk_no_tapering_posterior.pdf', bbox_inches = 'tight')
