@@ -11,26 +11,28 @@ import raynest.model
 from figaro.cosmology import CosmologicalParameters
 
 #LVK distribution:
-samples_in, name = load_single_event('GW190521.h5',par= ['mc_detect','luminosity_distance']) 
-#detector frame M_C
+samples_in, name = load_single_event('GW190521.h5',par= ['m1_detect','luminosity_distance']) 
+#detector frame M_1
 #this should be the same because both models should predict what we observe
 
 
 #redshifted model from conditioned draws:
-dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c ?? OR IS IT
+#dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c ?? OR IS IT
+dpgmm_file='inference_M1_rprior_interp/raynest.h5'
 #the conditional distribution (based on EM sky location)
 #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
 z_c = 0.438
-GW_posteriors = load_density(dpgmm_file)
+# GW_posteriors = load_density(dpgmm_file)
 
-mymodel= redshift_model(z_c, GW_posteriors)
+# mymodel= redshift_model(z_c, GW_posteriors)
+names=['r', 'M_1', 'cos_effective_angle']
 
 #post process
-with h5py.File('inference/raynest.h5', 'r') as f:
+with h5py.File('inference_M1_rprior_interp/raynest.h5', 'r') as f:
         post = np.array(f['combined']['posterior_samples'])
 
 
-samples_out = np.column_stack([post[lab] for lab in mymodel.names])
+samples_out = np.column_stack([post[lab] for lab in names])
 
 omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
 DL_em = omega.LuminosityDistance_double(z_c)
@@ -62,7 +64,7 @@ from figaro.plot import plot_multidim
 from figaro.marginal import condition
 
 #LVK draws pkl file, unconditioned on EM sky location
-filepath= 'draws_GW190521.pkl'
+filepath= 'primarymass/conditioned_density_draws_M1_and_DL.pkl'
 
 ra_EM, dec_EM = 192.42625 , 34.8247
 
@@ -72,7 +74,7 @@ dec_EM_rad=dec_EM/180*np.pi
 draws = load_density(filepath)
 
 #conditioned draws we are drawing from for comparison
-conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, filter=True, tol=1e-3)
+#conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, filter=True, tol=1e-3)
 
 #want to plot redshift model M_c eff and D_L posterior
 #vs conditioned LVK dist.
@@ -80,12 +82,12 @@ conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, fi
 #fixed cosmology for all
 
 # fig=plot_multidim(conditioned_draws, samples = samples_out[:,[1,0]],labels = [ 'M_c effective ',' D_L effective']) 
-fig=plot_multidim(conditioned_draws, labels = ['M_c', 'D_{effective}'], units=['M_\\odot', 'Mpc'])
+fig=plot_multidim(draws, labels = ['M_1', 'D_{effective}'], units=['M_\\odot', 'Mpc'])
 fig=corner(samples_out, color='magenta', fig=fig, label='redshift model', hist_kwargs ={'density':True, 'label':'redshifted model'})
 fig=corner(samples_in[:,[0,1]], color='grey', fig=fig, label='LVK', plot_density=False, hist_kwargs ={'density':True, 'label':'LVK model'})
 
 #agh making legends is stupid!!
 fig.axes[1].legend(*fig.axes[0].get_legend_handles_labels(), loc='center', frameon=False)
 
-fig.savefig('overplot.pdf')
+fig.savefig('overplot_M1_interp.pdf')
 
