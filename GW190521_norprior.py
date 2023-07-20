@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     #dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
     #GW_posteriors = load_density(dpgmm_file)
-    dpgmm_file= 'Marginalized_interpolation.pkl'
+    dpgmm_file= 'conditional_interpolation.pkl'
     with open(dpgmm_file, 'rb') as f:
         GW_posteriors = pickle.load(f)
     def GW_post(M,DL):
@@ -165,6 +165,6 @@ if __name__ == '__main__':
 
     reconstruction[:,1]=M_eff 
     
-    fig2=plot_multidim(GW_posteriors, samples = reconstruction[:,[1,0]],labels = [ 'M_1 effective','D_L effective']) 
-    fig2.savefig('inference_norprior_M1_interp/GW_posterior_vs_reconstruction_M1_interp.pdf', bbox_inches = 'tight')
+    #fig2=plot_multidim(GW_posteriors(), samples = reconstruction[:,[1,0]],labels = [ 'M_1 effective','D_L effective']) 
+    #fig2.savefig('inference_norprior_M1_interp/GW_posterior_vs_reconstruction_M1_interp.pdf', bbox_inches = 'tight')
     
