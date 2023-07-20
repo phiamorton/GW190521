@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from corner import corner
 import h5py
+import pickle
 
 from scipy.special import logsumexp
 from numba import njit
@@ -15,18 +16,28 @@ from figaro.plot import plot_multidim
 
 from priors import rad_prior, pl_peak_LVK, pl_peak_no_tapering 
 
+# dpgmm_file = 'primarymass/marginalized_density_draws_M1_and_DL.pkl' #detector frame M_1, not conditioned
+
+# GW_posteriors = load_density(dpgmm_file)
+
+dpgmm_file= 'Marginalized_interpolation.pkl'
+with open(dpgmm_file, 'rb') as f:
+    GW_posteriors = pickle.load(f)
+
+def GW_post(M,DL):
+    return GW_posteriors(M,DL)
 
 class noEM_model_plpk(raynest.model.Model):
 
     def __init__(self, draws):
         super(noEM_model_plpk,self).__init__()
-        self.draws=draws
-        self.N_draws = len(self.draws)
-        self.ones    = np.ones(self.N_draws)
+        # self.draws=draws
+        # self.N_draws = len(self.draws)
+        # self.ones    = np.ones(self.N_draws)
         self.omega   = CosmologicalParameters(0.674,0.315,0.685,-1.,0.)
         
         self.names= ['M_1',# source frame primary mass
-                     'z_c'] #codmological redshift
+                     'z_c'] #cosmological redshift
                 
         self.bounds =[ [0.,300.], [0,2] ]
         
@@ -35,26 +46,21 @@ class noEM_model_plpk(raynest.model.Model):
         logp=super(noEM_model_plpk,self).log_prior(x)
 
         if np.isfinite(logp):    
-            logp_M_c = pl_peak_LVK(x['M_1']) #power law +peak ??
+            logp_M_c = pl_peak_LVK(x['M_1']) #power law +peak 
             logp_z   = np.log(self.omega.ComovingVolumeElement_double(x['z_c'])) #unifrom in comoving volume 
             return logp_M_c +logp_z
         else:
             return -np.inf
 
     def log_likelihood(self,x):
-        DL = self.omega.LuminosityDistance_double(x['z_c'])
+        DL = np.float64(self.omega.LuminosityDistance_double(x['z_c']))
         
-        M_eff = (1+x['z_c'])* x['M_1'] #chirp mass with cosmological redshift= M_eff
-
-        pt = np.atleast_2d([M_eff, DL]) #DL not conditioned on EM candidate
-        
-        logl = self.draws[0]._fast_logpdf(pt)  #one draw
+        M_eff = (1+x['z_c'])* x['M_1'] #primary mass with cosmological redshift= M_eff
+        #print(type(M_eff))
+        #print(type(DL))
+        logl = GW_post(M_eff, DL)
         return logl
 
-
-dpgmm_file = 'primarymass/marginalized_density_draws_M1_and_DL.pkl' #detector frame M_1, not conditioned
-
-GW_posteriors = load_density(dpgmm_file)
 
 noEM_plpk_model= noEM_model_plpk(GW_posteriors)
 
@@ -78,8 +84,8 @@ class noEM_model_plpk_no_tapering(raynest.model.Model):
     def __init__(self, draws):
         super(noEM_model_plpk_no_tapering,self).__init__()
         self.draws=draws
-        self.N_draws = len(self.draws)
-        self.ones    = np.ones(self.N_draws)
+        # self.N_draws = len(self.draws)
+        # self.ones    = np.ones(self.N_draws)
         self.omega   = CosmologicalParameters(0.674,0.315,0.685,-1.,0.)
         
         self.names= ['M_1',# M_C source frame chirp mass
@@ -103,9 +109,7 @@ class noEM_model_plpk_no_tapering(raynest.model.Model):
         
         M_eff = (1+x['z_c'])* x['M_1'] #chirp mass with cosmological redshift= M_eff
 
-        pt = np.atleast_2d([M_eff, DL]) #DL not conditioned on EM candidate
-        
-        logl = self.draws[0]._fast_logpdf(pt)  #one draw
+        logl = GW_post(M_eff, DL) #one draw
         return logl
 
 noEM_plpk_no_tapering_model= noEM_model_plpk_no_tapering(GW_posteriors)
