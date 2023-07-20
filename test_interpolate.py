@@ -7,7 +7,7 @@ from scipy.interpolate import RegularGridInterpolator, interp2d
 #from scipy.stats import multivariate_normal as mn
 
 from corner import corner
-
+from figaro.load import load_density, save_density
 
 # x = np.linspace(1, 4, 11)
 # y = np.linspace(4, 7, 22)
@@ -22,7 +22,7 @@ from corner import corner
 
 dpgmm_file = 'primarymass/marginalized_density_draws_M1_and_DL.pkl' #detector frame M_1 and DL, marginalized over sky position
 
-from figaro.load import load_density, save_density
+
 GW_posteriors = load_density(dpgmm_file)
 
 draws = load_density(dpgmm_file)
