@@ -6,6 +6,9 @@ import h5py
 with h5py.File('inference_noEM_plpk/raynest.h5', 'r') as f:
     no_EM_plpk_logZ=  np.array(f['combined']['logZ'])
 
+with h5py.File('inference_no_tapering/raynest.h5', 'r') as f:
+    no_EM_plpk_no_tapering_logZ=  np.array(f['combined']['logZ'])
+
 
 #redshift model
 with h5py.File('inference/raynest.h5', 'r') as f:
@@ -14,10 +17,19 @@ with h5py.File('inference/raynest.h5', 'r') as f:
 
 print("estimated logZ for no EM counterpart and pl+pk model = {0} ".format(no_EM_plpk_logZ))
 print("estimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
-print("Log Bayes' Factor redshift model vs nonredshifted= ", redshift_logZ - no_EM_plpk_logZ) #- not / for log"
+print("Log Bayes' Factor redshift model vs no EM association pl+pk= ", redshift_logZ - no_EM_plpk_logZ) #- not / for log"
+
+
+print("estimated logZ for no EM counterpart and pl+pk model without tapering= {0} ".format(no_EM_plpk_no_tapering_logZ))
+#print("estimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
+print("Log Bayes' Factor redshift model vs no EM association pl+pk without tapering= ", redshift_logZ - no_EM_plpk_no_tapering_logZ) #- not / for log"
+
+#print("estimated logZ for no EM counterpart and pl+pk model with tapering = {0} ".format(no_EM_plpk_logZ))
+#print("estimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
+print("Log Bayes' Factor no EM association pl+pk tapered vs untapered= ", no_EM_plpk_logZ - no_EM_plpk_no_tapering_logZ) #- not / for log"
 
 comparerprior=True
-if comparerprior==True:
+if comparerprior:
     #redshift model with uniform prior on r
     with h5py.File('inference_norprior/raynest.h5', 'r') as f:
         nor_logZ = np.array(f['combined']['logZ'])
