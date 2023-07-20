@@ -1,3 +1,5 @@
+from urllib.parse import non_hierarchical
+from numpy.ma.core import nonzero
 import raynest
 import raynest.model
 import numpy as np
@@ -118,7 +120,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess=False
+    postprocess=True
 
     #dpgmm_file = 'primarymass/conditioned_density_draws_M1_and_DL.pkl' #non-redshifted M_1
     #the conditional distribution (based on EM sky location)
@@ -143,7 +145,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_1$', '$cos(\\theta_{effective})$']) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_1$', '$cos(\\theta_{effective})$'], truths=[None,85, None]) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig.savefig('inference_M1_rprior_interp/joint_posterior_redshiftmodel_M1_interp.pdf', bbox_inches = 'tight')
 
@@ -176,7 +178,7 @@ if __name__ == '__main__':
 
     reconstruction[:,1]=M_eff 
     
-    fig2=corner(reconstruction[:,[1,0]],labels = [ 'M_1 effective ',' D_L effective']) 
+    fig2=corner(reconstruction[:,[1,0]],labels = [ 'M_1 effective ',' D_L effective'], truths=[85,None]) 
     fig2.savefig('inference_M1_rprior_interp/GW_posterior_vs_reconstruction_redshift_M1_interp.pdf', bbox_inches = 'tight')
     
     #gonna make some histograms 
