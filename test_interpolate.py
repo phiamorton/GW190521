@@ -22,7 +22,7 @@ from figaro.load import load_density, save_density
 
 marginal_density=True
 if marginal_density:
-    dpgmm_file = 'marginalized_density_draws_M1_and_DL.pkl' #detector frame M_1 and DL, marginalized over sky position
+    dpgmm_file = 'draws_allsky_GW190521/draws_GW190521.pkl' #detector frame M_1 and DL, marginalized over sky position
     #from all sky density, not just northern hemishpere
 
 
