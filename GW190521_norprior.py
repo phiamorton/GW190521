@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     #dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
     #GW_posteriors = load_density(dpgmm_file)
-    dpgmm_file= 'conditional_interpolation.pkl'
+    dpgmm_file= 'conditional_interpolation_nF.pkl'
     with open(dpgmm_file, 'rb') as f:
         GW_posteriors = pickle.load(f)
     def GW_post(M,DL):
