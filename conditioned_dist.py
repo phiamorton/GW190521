@@ -30,11 +30,11 @@ save_density(conditioned_draws_nF, name='conditioned_density_draws_M1_and_DL_nF'
 #dont want to use normalized draws because it fucks up the Bayes factors
 #print([d.n_cl for d in conditioned_draws_nF])
 
-#now the marginal one too from the no association model
-make_marginal=False
-if make_marginal:
-    filepath= 'draws_allsky_GW190521/draws_GW190521.pkl' 
-    draws = load_density(filepath)
-    draws_m1_marginal = [d.marginalise([2,3]) for d in draws] 
-    save_density(draws_m1_marginal, name='marginalized_density_draws_M1_and_DL')
+# #now the marginal one too from the no association model
+# make_marginal=False
+# if make_marginal:
+#     filepath= 'draws_allsky_GW190521/draws_GW190521.pkl' 
+#     draws = load_density(filepath)
+#     draws_m1_marginal = [d.marginalise([2,3]) for d in draws] 
+#     save_density(draws_m1_marginal, name='marginalized_density_draws_M1_and_DL')
 
