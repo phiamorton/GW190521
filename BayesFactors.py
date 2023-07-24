@@ -17,12 +17,12 @@ with h5py.File('inference_M1_rprior_interp/raynest.h5', 'r') as f:
 
 print("\nestimated logZ for no EM counterpart and pl+pk model = {0} ".format(no_EM_plpk_logZ))
 print("\nestimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
-print("\nLog Bayes' Factor redshift model vs no EM association pl+pk= ", redshift_logZ - no_EM_plpk_logZ) #- not / for log"
+print("\nLog Bayes' Factor redshift model vs no EM association pl+pk= ", redshift_logZ - no_EM_plpk_logZ - np.log(13)) #- not / for log"
 
 
 print("\nestimated logZ for no EM counterpart and pl+pk model without tapering= {0} ".format(no_EM_plpk_no_tapering_logZ))
 #print("estimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
-print("\nLog Bayes' Factor redshift model vs no EM association pl+pk without tapering= ", redshift_logZ - no_EM_plpk_no_tapering_logZ) #- not / for log"
+print("\nLog Bayes' Factor redshift model vs no EM association pl+pk without tapering= ", redshift_logZ - no_EM_plpk_no_tapering_logZ - np.log(13)) #- not / for log"
 
 #print("estimated logZ for no EM counterpart and pl+pk model with tapering = {0} ".format(no_EM_plpk_logZ))
 #print("estimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
