@@ -20,7 +20,7 @@ from priors import rad_prior, pl_peak_LVK, pl_peak_no_tapering
 
 # GW_posteriors = load_density(dpgmm_file)
 
-dpgmm_file= 'Marginalized_interpolation.pkl'
+dpgmm_file= 'Marginalized_interpolation_allsky.pkl'
 with open(dpgmm_file, 'rb') as f:
     GW_posteriors = pickle.load(f)
 
@@ -59,12 +59,13 @@ class noEM_model_plpk(raynest.model.Model):
         #print(type(M_eff))
         #print(type(DL))
         logl = GW_post(M_eff, DL)
+        logl -= 2* np.log(DL)
         return logl
 
 
 noEM_plpk_model= noEM_model_plpk(GW_posteriors)
 
-postprocess=True
+postprocess=False
 if not postprocess:
     nest_noEM_plpk = raynest.raynest(noEM_plpk_model, verbose=2, nnest=1, nensemble=1, nlive=2000, maxmcmc=5000, output = 'inference_noEM_plpk/')
     nest_noEM_plpk.run(corner = True)
@@ -110,11 +111,12 @@ class noEM_model_plpk_no_tapering(raynest.model.Model):
         M_eff = (1+x['z_c'])* x['M_1'] #chirp mass with cosmological redshift= M_eff
 
         logl = GW_post(M_eff, DL) #one draw
+        logl -= 2* np.log(DL) #remove GW prior
         return logl
 
 noEM_plpk_no_tapering_model= noEM_model_plpk_no_tapering(GW_posteriors)
 
-postprocess=True
+postprocess=False
 if not postprocess:
     nest_noEM_plpk_no_tapering = raynest.raynest(noEM_plpk_no_tapering_model, verbose=2, nnest=1, nensemble=1, nlive=2000, maxmcmc=5000, output = 'inference_no_tapering/')
     nest_noEM_plpk_no_tapering.run(corner = True)
