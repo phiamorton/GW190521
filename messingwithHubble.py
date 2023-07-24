@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from corner import corner
 import h5py
+import pickle 
 
 from scipy.special import logsumexp
 from numba import njit
@@ -22,13 +23,13 @@ class redshift_model(raynest.model.Model):
         #defining effective luminosity and chirp mass, will get this from data??
         # z_c comes from the EM candidate
         self.draws=draws
-        self.N_draws = len(self.draws)
-        self.ones    = np.ones(self.N_draws)
+        # self.N_draws = len(self.draws)
+        # self.ones    = np.ones(self.N_draws)
         self.z_c=z_c
         
         
         self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
-                     'M_C', # M_C true chirp mass
+                     'M_1', # M_C true chirp mass
                      #'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
@@ -104,11 +105,12 @@ class redshift_model(raynest.model.Model):
         D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em
 
         #M_c eff (z_c, z_r, z_g, M_c)
-        M_eff = (1+self.z_c) * (1 + z_rel) * (1 + z_grav) * x['M_C']
+        M_eff = (1+self.z_c) * (1 + z_rel) * (1 + z_grav) * x['M_1']
 
-        pt = np.atleast_2d([M_eff, D_eff])
+        #pt = np.atleast_2d([M_eff, D_eff])
         #my likelihood is marginalized over D_L eff, M_c eff, z_r, z_g, D_L
-        logl = self.draws[0]._fast_logpdf(pt)  #one draw
+        #logl = self.draws[0]._fast_logpdf(pt)  #one draw
+        logl=GW_post(M_eff,D_eff)
         logl-=2*np.log(D_eff) #remove GW prior
         # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)  #average of multiple draws
 
@@ -118,7 +120,12 @@ if __name__ == '__main__':
 
     postprocess=False 
 
-    dpgmm_file = 'conditioned_density_draws.pkl' #non-redshifted M_c
+    dpgmm_file= 'conditional_interpolation_nF.pkl'
+    with open(dpgmm_file, 'rb') as f:
+        GW_posteriors = pickle.load(f)
+    def GW_post(M,DL):
+        return GW_posteriors(M,DL) 
+    #M_1
     #the conditional distribution (based on EM sky location)
     #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
     z_c = 0.438
@@ -135,7 +142,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_c$', '$cos(\\theta_{effective})$', '$H_0$', '$\\Omega_m$'], truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{R_s}$','$M_1$', '$cos(\\theta_{effective})$', '$H_0$', '$\\Omega_m$'], truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig.savefig('joint_posterior_with_H0.pdf', bbox_inches = 'tight')
 
