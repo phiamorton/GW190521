@@ -113,6 +113,7 @@ class redshift_model(raynest.model.Model):
         #logl = self.draws[0]._fast_logpdf(pt)  #one draw
         #logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws[:10]]), self.ones) - np.log(self.N_draws)  #average of multiple d
         logl=GW_post(M_eff,D_eff)
+        #print(2*np.log(D_eff))
         logl -= 2*np.log(D_eff) #remove GW prior
         # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)  #average of multiple draws
 
@@ -120,13 +121,13 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess=True
+    postprocess=False
 
     #dpgmm_file = 'primarymass/conditioned_density_draws_M1_and_DL.pkl' #non-redshifted M_1
     #the conditional distribution (based on EM sky location)
     #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
     #GW_posteriors = load_density(dpgmm_file)
-    dpgmm_file= 'conditional_interpolation.pkl'
+    dpgmm_file= 'conditional_interpolation_nF.pkl'
     with open(dpgmm_file, 'rb') as f:
         GW_posteriors = pickle.load(f)
     def GW_post(M,DL):
@@ -145,7 +146,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_1$', '$cos(\\theta_{effective})$'], truths=[None,85, None]) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_1 source frame$', '$cos(\\theta_{effective})$'], truths=[None,85, None]) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig.savefig('inference_M1_rprior_interp/joint_posterior_redshiftmodel_M1_interp.pdf', bbox_inches = 'tight')
 
@@ -181,38 +182,3 @@ if __name__ == '__main__':
     fig2=corner(reconstruction[:,[1,0]],labels = [ 'M_1 effective ',' D_L effective'], truths=[85,None]) 
     fig2.savefig('inference_M1_rprior_interp/GW_posterior_vs_reconstruction_redshift_M1_interp.pdf', bbox_inches = 'tight')
     
-    #gonna make some histograms 
-    #print(r.shape, vel.shape, vel_LoS.shape)
-    # fig3 = plt.figure(figsize=(18, 3.5))
-    # spec=fig3.add_gridspec(ncols=3, nrows=1)
-    # ax0= fig3.add_subplot(spec[0,0])
-    # ax0.scatter(r,vel)
-    # ax0.set_xlabel('$R_s$')
-    # ax0.set_ylabel('velocity [% c]')
-    
-    # ax2= fig3.add_subplot(spec[0,1])
-    # ax2.scatter(r,z_rel)
-    # ax2.set_xlabel('$R_s$')
-    # ax2.set_ylabel('$z_{rel}$')
-
-    # ax3= fig3.add_subplot(spec[0,2])    
-    # ax3.scatter(r,z_grav)
-    # ax3.set_xlabel('$R_s$')
-    # ax3.set_ylabel('$z_{grav}$')
-
-    # fig3.savefig('effect_of_r_on_z')
-
-#to do: 
-# transform M_c (observer frame) into M_1 and M_2 dist given same q 
-#unlike our previous expectations, the source is blueshifted, favoring an even larger mass
-#how to get confidence interval values to report? -from figaro??
-
-#overplot LVK posteriors? when applicablle
-#LVK posterior vs marginalized posterior
-
-#given r distribution and most probable r, calculate EM emission wavelengths and compare to EM candidate, requires choosing an AGN gas model
-#https://arxiv.org/pdf/2301.07111.pdf 
-
-
-#could do some model selection and report Bayes factors for 
-# 1) EM counterpart + redshift VS no association (use fixed H0)
