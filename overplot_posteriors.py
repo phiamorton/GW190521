@@ -63,7 +63,7 @@ samples_out = np.array([M_eff, D_eff]).T
 from figaro.plot import plot_multidim 
 from figaro.marginal import condition
 
-#LVK draws pkl file, unconditioned on EM sky location
+#LVK draws pkl file, conditioned on EM sky location
 filepath= 'conditioned_density_draws_M1_and_DL_nF.pkl'
 #conditioned_density_draws_M1_and_DL_nF.pkl
 # ra_EM, dec_EM = 192.42625 , 34.8247
