@@ -72,7 +72,7 @@ filepath= 'conditioned_density_draws_M1_and_DL_nF.pkl'
 # dec_EM_rad=dec_EM/180*np.pi 
 
 draws = load_density(filepath)
-print([d.n_cl for d in draws])
+#print([d.n_cl for d in draws])
 
 #conditioned draws we are drawing from for comparison
 # conditioned_draws = condition(draws,[ra_EM_rad,dec_EM_rad], [2,3], norm=True, filter=True, tol=1e-3)
@@ -86,7 +86,7 @@ print([d.n_cl for d in draws])
 fig=plot_multidim(draws, labels = ['M_1^Z', 'D_{effective}'], units=['M_\\odot', 'Mpc'])
 #print("pt1 ")
 #, fig=fig
-fig=corner(samples_out, color='magenta', fig=fig, label='redshift model', hist_kwargs ={'density':True, 'label':'redshifted model'})
+fig=corner(samples_out, color='maroon', fig=fig, label='redshift model', hist_kwargs ={'density':True, 'label':'redshifted model'})
 fig=corner(samples_in[:,[0,1]], color='grey', fig=fig, label='LVK', plot_density=False, hist_kwargs ={'density':True, 'label':'LVK model'})
 
 fig.axes[1].legend(*fig.axes[0].get_legend_handles_labels(), loc='center', frameon=False)
