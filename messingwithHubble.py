@@ -34,8 +34,8 @@ class redshift_model(raynest.model.Model):
                      #'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
                      'cos_effective_angle', #I dont really care about the relative angle, only need one effective angle between LoS and GW emission, sampled uniform in cos
-                     'H_0',#Hubble constant
-                     'om'] #matter density
+                     'H_0']#,#Hubble constant
+                     #'om'] #matter density
 
     # equations using G=c=1
     #orbital phases defined in the plane (ie along the disk from bird's eye view)
@@ -81,7 +81,7 @@ class redshift_model(raynest.model.Model):
         #with Hubble constant and matterdensity, z from EM galaxy redshift, find D_L cosmological
         #omega = CosmologicalParameters(x['H_0'], x['om'], 1-x['om'], -1., 0.)
         #luminosity distance based on cosomology and z from EM counterpart
-        DL_em = CosmologicalParameters(x['H_0']/100, x['om'], 1-x['om'], -1., 0.).LuminosityDistance_double(self.z_c)
+        DL_em = CosmologicalParameters(x['H_0']/100, 0.315, 0.685, -1., 0.).LuminosityDistance_double(self.z_c)
         #remember to normalize H_0
         #DL_em=omega.LuminosityDistance_double(self.z_c)
         #need prob(D_L eff and M_c eff from GW data), use distribution from FIGARO?
@@ -142,9 +142,9 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$\\frac{r}{R_s}$','$M_1$', '$cos(\\theta_{effective})$', '$H_0$', '$\\Omega_m$'], truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{R_s}$','$M_1$', '$cos(\\theta_{effective})$', '$H_0$'], truths = [None,None,None,67.4]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
-    fig.savefig('joint_posterior_with_H0.pdf', bbox_inches = 'tight')
+    fig.savefig('inference_H/joint_posterior_with_H0.pdf', bbox_inches = 'tight')
 
 #report Hubble constant and matter density 
 #https://arxiv.org/pdf/1307.2638.pdf
@@ -185,6 +185,6 @@ H = c*z_c/D_eff #km/s/MpC
 # #want to add Planck value for comparison, truths
 
 fig4=corner(H, truths=[67.4])
-fig4.savefig('H_0estimate_redshift_rpriormodel')
+fig4.savefig('inference_H/H_0estimate_redshift_rpriormodel')
 
     
