@@ -121,7 +121,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess=False
+    postprocess=True
 
     #dpgmm_file = 'primarymass/conditioned_density_draws_M1_and_DL.pkl' #non-redshifted M_1
     #the conditional distribution (based on EM sky location)
@@ -178,7 +178,13 @@ if __name__ == '__main__':
     M_eff = (1+z_c) * (1 + z_rel) * (1 + z_grav) * samples[:,1]
 
     reconstruction[:,1]=M_eff 
-    
+
+    percentile=np.percentile(samples[:,1], [10, 90])
+    median=np.median(samples[:,1])
+    print(median, "-", median-percentile[0],"+", percentile[1]-median)
+
+
     fig2=corner(reconstruction[:,[1,0]],labels = [ 'M_1 effective ',' D_L effective'], truths=[85,None]) 
     fig2.savefig('inference_M1_rprior_interp/GW_posterior_vs_reconstruction_redshift_M1_interp.pdf', bbox_inches = 'tight')
+    
     
