@@ -42,7 +42,7 @@ def pl_peak_LVK(m):
 def rad_prior(r):
     #linear in log scale:
     #logslope= 1
-    slope= 0.01 
+    slope = 0.01 
     intercept=1
 
     #Laplacian/resonance peaks:
