@@ -28,7 +28,7 @@ class redshift_model(raynest.model.Model):
         # self.N_draws = len(self.draws)
         # self.ones    = np.ones(self.N_draws)
         self.z_c=z_c
-        
+        self.DL_em = CosmologicalParameters(0.674,0.315,0.685,-1.,0.).LuminosityDistance_double(self.z_c)
         
         self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
                      'M_1', # M_1 true mass (NOT detector frame)
@@ -82,7 +82,7 @@ class redshift_model(raynest.model.Model):
     def log_likelihood(self,x):
         
         #luminosity distance based on cosomology and z from EM counterpart
-        DL_em = CosmologicalParameters(0.674,0.315,0.685,-1.,0.).LuminosityDistance_double(self.z_c)
+        
         #remember to normalize H_0
         #DL_em=omega.LuminosityDistance_double(self.z_c)
         #need prob(D_L eff and M_c eff from GW data), use distribution from FIGARO?
@@ -103,7 +103,7 @@ class redshift_model(raynest.model.Model):
         #z_grav (r)
         z_grav = 1./np.sqrt(1 - np.exp(-x['r'])) - 1 
         #D_L eff (z_c, z_rel, z_grav, D_L)
-        D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em
+        D_eff = (1+z_rel)**2 * (1+z_grav) * self.DL_em
 
         #M_c eff (z_c, z_r, z_g, M_c)
         M_eff = (1+self.z_c) * (1 + z_rel) * (1 + z_grav) * x['M_1']
@@ -121,7 +121,7 @@ class redshift_model(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess=True
+    postprocess=False
 
     #dpgmm_file = 'primarymass/conditioned_density_draws_M1_and_DL.pkl' #non-redshifted M_1
     #the conditional distribution (based on EM sky location)
@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['$\\frac{r}{r_s}$','$M_1 source frame$', '$cos(\\theta_{effective})$'], truths=[None,85, None]) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['Distance from SMBH $[R_s]$','$M_1 [M_\odot]$', '$cos(\\theta_{effective})$'], truths=[None,85, None]) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig.savefig('inference_M1_rprior_interp/joint_posterior_redshiftmodel_M1_interp.pdf', bbox_inches = 'tight')
 
