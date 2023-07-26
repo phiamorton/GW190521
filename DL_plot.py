@@ -44,14 +44,14 @@ interp_cond=interp1d(D_L, draws_pdf)
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
 plt.plot(D_L,interp_cond(D_L), color='green', label='conditioned')
 
-percentile=np.percentile(draws_pdf, [70])
-print(DL_em)
-#print(np.median(interp_cond(D_L))
-print(percentile)
+# percentile=np.percentile(draws_pdf, [70])
+# print(DL_em)
+# #print(np.median(interp_cond(D_L))
+# print(percentile)
 
 
 #marginal
-filepath= 'marginalized_density_draws_M1_and_DL.pkl' 
+filepath= 'draws_allsky_GW190521/draws_GW190521.pkl' 
 draws_marg = load_density(filepath)
 draws_m1_marginal = marginalise(draws_marg, [0])#[d.marginalise([0]) for d in draws_marg] 
 #plot_median_cr(draws_m1_marginal, fig = fig, median_label='marginal')
@@ -70,5 +70,5 @@ plt.xlabel('Distance [Mpc]')
 plt.ylabel('probability(Distance)')
 plt.legend()
 plt.savefig('Distance_comparison.pdf')
-#fig.savefig('DL_overplot.pdf')
+plt.savefig('DL_overplot.pdf')
 
