@@ -28,9 +28,9 @@ D_L=np.linspace(1,9999,202)[1:-1]
 dpgmm_file = 'old_waveform/draws_old_GW190521.pkl' #detector frame M_1 and DL
 draws = load_density(dpgmm_file)
 draws_pdf = np.mean([d.pdf(D_L.T) for d in draws], axis = 0).reshape(len(D_L)) 
-interp_old=CubicSpline(D_L, draws_pdf)    
+#interp_old=CubicSpline(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
-plt.plot(D_L,interp_old(D_L), color='purple', label='LVK IMRPhenomPv3HM')
+plt.plot(D_L,draws_pdf, color='purple', label='LVK IMRPhenomPv3HM')
 
 
 #conditioned
@@ -40,9 +40,9 @@ conditioned_draws=[d.marginalise([0]) for d in draws]
 #print([d.n_cl for d in conditioned_draws])
 #plot_median_cr(conditioned_draws, fig=fig, samples = samples_in, true_value=DL_em, true_value_label= 'EM',  label = 'D_{effective}', unit='Mpc', median_label='conditional')
 draws_pdf = np.mean([d.pdf(D_L.T) for d in conditioned_draws], axis = 0).reshape(len(D_L)) 
-interp_cond=interp1d(D_L, draws_pdf)    
+#interp_cond=interp1d(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
-plt.plot(D_L,interp_cond(D_L), color='green', label='conditioned')
+plt.plot(D_L,draws_pdf, color='green', label='conditioned')
 
 # percentile=np.percentile(draws_pdf, [70])
 # print(DL_em)
@@ -57,9 +57,9 @@ draws_m1_marginal = marginalise(draws_marg, [0])#[d.marginalise([0]) for d in dr
 #plot_median_cr(draws_m1_marginal, fig = fig, median_label='marginal')
 #corner(draws_m1_marginal, fig=fig)
 draws_pdf = np.mean([d.pdf(D_L.T) for d in draws_m1_marginal], axis = 0).reshape(len(D_L)) 
-interp_marg=interp1d(D_L, draws_pdf)    
+#interp_marg=interp1d(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
-plt.plot(D_L,interp_marg(D_L), color='magenta', label='marginalized')
+plt.plot(D_L,draws_pdf, color='magenta', label='marginalized')
 
 
 #fig.axes.legend(*fig.axes.get_legend_handles_labels(), loc='center', frameon=False)
