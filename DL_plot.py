@@ -16,6 +16,7 @@ from figaro.cosmology import CosmologicalParameters
 from figaro.plot import plot_multidim , plot_1d_dist,plot_median_cr
 from figaro.marginal import condition, marginalise
 from scipy.interpolate import interp1d, CubicSpline, UnivariateSpline
+from scipy.stats import gaussian_kde
 
 #LVK new waveform
 samples_in, name = load_single_event('GW190521.h5',par= ['luminosity_distance']) 
@@ -25,13 +26,19 @@ DL_em = CosmologicalParameters(0.674,0.315,0.685,-1.,0.).LuminosityDistance_doub
 
 D_L=np.linspace(1,9999,202)[1:-1]
 #LVK old waveform
-dpgmm_file = 'old_waveform/draws_old_GW190521.pkl' #detector frame M_1 and DL
-draws = load_density(dpgmm_file)
-draws_pdf = np.mean([d.pdf(D_L.T) for d in draws], axis = 0).reshape(len(D_L)) 
+#dpgmm_file = 'old_waveform/draws_old_GW190521.pkl' #detector frame M_1 and DL
+# draws = load_density(dpgmm_file)
+# draws_pdf = np.mean([d.pdf(D_L.T) for d in draws], axis = 0).reshape(len(D_L)) 
 #interp_old=CubicSpline(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
-plt.plot(D_L,draws_pdf, color='purple', label='LVK IMRPhenomPv3HM')
-
+with h5py.File('old_waveform/GW190521_posterior_samples.h5', 'r') as f:
+    post = np.array(f['IMRPhenomPv3HM']['posterior_samples'])
+    print(post['luminosity_distance'])
+samples= np.column_stack(post['luminosity_distance'])
+#print(samples_GW17)
+kernel=gaussian_kde(samples)
+plt.plot(D_L, kernel(D_L), color='purple', label='LVK IMRPhenomPv3HM')
+#plt.hist()
 
 #conditioned
 dpgmm_file = 'conditioned_density_draws_M1_and_DL.pkl' #detector frame M_1 and DL
@@ -43,6 +50,8 @@ draws_pdf = np.mean([d.pdf(D_L.T) for d in conditioned_draws], axis = 0).reshape
 #interp_cond=interp1d(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
 plt.plot(D_L,draws_pdf, color='green', label='conditioned')
+perc = np.sum(draws_pdf[D_L<DL_em]*(D_L[1]-D_L[0]))
+print(perc)
 
 # percentile=np.percentile(draws_pdf, [70])
 # print(DL_em)
@@ -65,9 +74,9 @@ plt.plot(D_L,draws_pdf, color='blue', label='marginalized')
 #fig.axes.legend(*fig.axes.get_legend_handles_labels(), loc='center', frameon=False)
 plt.axvline(DL_em, color='red', label='EM counterpart')
 
-
 plt.xlabel('Distance [Mpc]')
 plt.ylabel('probability(Distance)')
+plt.ylim(bottom=0.)
 plt.legend()
 plt.savefig('Distance_comparison.pdf')
 plt.savefig('DL_overplot.pdf')
