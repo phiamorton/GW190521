@@ -18,6 +18,10 @@ with h5py.File('inference_M1_rprior_interp/raynest.h5', 'r') as f:
 with h5py.File('inference_H/raynest.h5', 'r') as f:
     H_0_logZ=  np.array(f['combined']['logZ'])
 
+with h5py.File('inference_H_GW17/raynest.h5', 'r') as f:
+    H_0_withGW17 = np.array(f['combined']['logZ'])
+
+print("with and without GW170817 prior", H_0_withGW17-H_0_logZ)
 
 print("\nestimated logZ for no EM counterpart and pl+pk model = {0} ".format(no_EM_plpk_logZ))
 print("\nestimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
@@ -27,6 +31,12 @@ print("\nLog Bayes' Factor redshift model vs no EM association pl+pk= ", redshif
 print("\nestimated logZ for redshift model with free H_0 = {0} ".format(H_0_logZ))
 print("\nLog Bayes' Factor redshift model vs redshift model with free H_0= ", redshift_logZ - H_0_logZ ) #- np.log(13)) #if subtracting prior odds as in Ashton#- not / for log"
 print("\nLog Bayes' Factor redshift model with free H_0 vs no EM association pl+pk= ", H_0_logZ - no_EM_plpk_logZ ) #- np.log(13)) #if subtracting prior odds as in Ashton#- not / for log"
+
+#H_0 and GW170817
+print("\nestimated logZ for redshift model with free H_0 and GW170817 = {0} ".format(H_0_withGW17))
+print("\nLog Bayes' Factor redshift model vs redshift model with free H_0 and GW170817= ", redshift_logZ - H_0_withGW17 ) #- np.log(13)) #if subtracting prior odds as in Ashton#- not / for log"
+print("\nLog Bayes' Factor redshift model with free H_0 and GW170817 vs no EM association pl+pk= ", H_0_withGW17 - no_EM_plpk_logZ ) #- np.log(13)) #if subtracting prior odds as in Ashton#- not / for log"
+
 
 print("\nestimated logZ for no EM counterpart and pl+pk model without tapering= {0} ".format(no_EM_plpk_no_tapering_logZ))
 #print("estimated logZ for redshift model with r prior= {0} ".format(redshift_logZ))
