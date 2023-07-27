@@ -24,6 +24,10 @@ norm_peak = -0.5*np.log(2*np.pi) - np.log(sigma_peak)
 LVK_o3 = np.genfromtxt('lvk_log_plpeak.txt')
 pl_peak_interpolant = interp1d(LVK_o3[:,0], LVK_o3[:,1], fill_value = 'extrapolate')
 
+# H0 with GW170817
+H0 = np.genfromtxt('H0_prior.txt')
+H0_interpolant = interp1d(H0[:,0], H0[:,1])
+
 def pl_peak_no_tapering(m):
     """
     Power-law + peak model without any tapering (low mass or high mass).
@@ -38,6 +42,12 @@ def pl_peak_LVK(m):
     Data from https://zenodo.org/record/7843926
     """
     return pl_peak_interpolant(m)
+
+def H0_prior(H0):
+    """
+    Prior induced by GW170817 EM counterpart
+    """
+    return H0_interpolant(H0)
     
 def rad_prior(r):
     #linear in log scale:
