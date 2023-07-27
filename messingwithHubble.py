@@ -48,7 +48,7 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
-        self.bounds =[ [3,400], [0.,200.], [-1,1],[10,150], [0,1]] 
+        self.bounds =[ [3,400], [0.,200.], [-1,1],[10,200]] 
         #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ] #for using 3 angles
         #updated r bounds to show whole region where migration traps may occurr and 
         # have minimum at ISCO, no longer gives invalid sqrt error
@@ -134,7 +134,7 @@ class redshift_model_GW17(raynest.model.Model):
                      #'orbital_phase', # theta_orbital_phase is the phase of BBH in its orbit (max at 0), axis defined as orthogonal to LOS 
                      'cos_effective_angle', #I dont really care about the relative angle, only need one effective angle between LoS and GW emission, sampled uniform in cos
                      'H_0']#,#Hubble constant
-        self.bounds =[ [3,400], [0.,200.], [-1,1],[10,150], [0,1]] 
+        self.bounds =[ [3,400], [0.,200.], [-1,1],[10,200]] 
         
     def log_prior(self,x):
         logp=super(redshift_model_GW17,self).log_prior(x)
@@ -170,7 +170,7 @@ class redshift_model_GW17(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess=True
+    postprocess=False
 
     dpgmm_file= 'conditional_interpolation_nF.pkl'
     with open(dpgmm_file, 'rb') as f:
@@ -250,4 +250,4 @@ ax.hist(samples_GW17[:,[3]], histtype='step', density = True)
 ax.hist(samples[:,[3]], histtype='step', density=True)
 ax.axvline(67.4, label='Planck')
 ax.set_xlabel('$H_0$ estimate')
-fig.savefig('H_0_estimate')
+fig.savefig('H_0_estimate.pdf')
