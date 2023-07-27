@@ -26,11 +26,11 @@ pl_peak_interpolant = interp1d(LVK_o3[:,0], LVK_o3[:,1], fill_value = 'extrapola
 
 # H0 with GW170817
 H0 = np.genfromtxt('H0_prior.txt')
-H0_interpolant = interp1d(H0[:,0], H0[:,1])
+H0_interpolant = interp1d(H0[:,0], H0[:,1], fill_value = 'extrapolate')
 
 # AGN mass distribution (Paola)
 m1_agn = np.genfromtxt('AGN_mass_distribution.txt')
-agn_mass_interpolant = interp1d(m1_agn[:,0], m1_agn[:,1])
+agn_mass_interpolant = interp1d(m1_agn[:,0], m1_agn[:,1], fill_value = 'extrapolate')
 
 def pl_peak_no_tapering(m):
     """
@@ -60,8 +60,6 @@ def AGN_mass_prior(m):
     return agn_mass_interpolant(m)
     
 def rad_prior(r):
-    #linear in log scale:
-    #logslope= 1
     slope = 0.01 
     intercept=1
 
