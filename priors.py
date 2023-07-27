@@ -93,5 +93,5 @@ if __name__ == '__main__':
     #plt.plot(logr, test1)
     plt.xlabel(r'Distance from SMBH [${R_s}$]')
     plt.ylabel('prob(BBH location)')
-    plt.savefig('radius_prior')
+    plt.savefig('radius_prior.pdf')
 
