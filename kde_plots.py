@@ -50,3 +50,4 @@ fig.savefig('H_0_kdeplot.pdf', bbox_extra_artists=(), bbox_inches='tight')
 
 #set lower limit 0
 #https://dcc.ligo.org/public/0145/P1700296/005/LIGO-P1700296.pdf
+
