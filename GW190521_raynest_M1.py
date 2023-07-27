@@ -148,6 +148,7 @@ if __name__ == '__main__':
     #samples[:,0] = np.exp(samples[:,0])
     fig = corner(samples, labels = ['Distance from SMBH $[R_s]$','$M_1 [M_\odot]$', '$cos(\\theta_{effective})$'], truths=[None,98.4, None], show_titles=True) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
+   
     fig.savefig('inference_M1_final/joint_posterior_redshiftmodel_M1_interp.pdf', bbox_inches = 'tight')
 
     #now plotting a comparison of the figaro reconstruction versus the output for D_Leff and M_c
