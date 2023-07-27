@@ -17,16 +17,14 @@ ax.plot(M, kernel(M), color='purple', label='Redshift model')
 
 
 #LVK
-
+#https://gwosc.org/eventapi/html/GWTC-2.1-confident/GW190521/v4/
 with h5py.File('IGWN-GWTC2p1-v2-GW190521_030229_PEDataRelease_mixed_cosmo.h5', 'r') as f:
-    post= np.array(f['C01:Mixed']['posterior_samples'])
-    print(help(f['C01:Mixed']['posterior_samples']))
+    post= np.array(f['C01:Mixed']['posterior_samples']['mass_1_source'])
+    print(post)
 
-
-
-
-
-
+samples = np.column_stack(post )
+kernel=gaussian_kde(samples)
+ax.plot(M, kernel(M), color='blue', label='LVK model')
 
 ax.legend()
 ax.set_ylim(bottom=0.)
