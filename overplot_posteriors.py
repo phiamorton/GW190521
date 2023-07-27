@@ -28,7 +28,7 @@ z_c = 0.438
 names=['r', 'M_1', 'cos_effective_angle']
 
 #post process
-with h5py.File('inference_M1_rprior_interp/raynest.h5', 'r') as f:
+with h5py.File('inference_M1_final/raynest.h5', 'r') as f:
         post = np.array(f['combined']['posterior_samples'])
 
 
@@ -39,7 +39,7 @@ DL_em = omega.LuminosityDistance_double(z_c)
 #print(DL_em)
 reconstruction= samples_out[:,[0,1]]
     #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
-r=np.exp(samples_out[:,0])
+r=samples_out[:,0]
 vel=1./np.sqrt(2*(r-1))  #the magnitude at a given distance from SMBH
 vel_LoS = vel * samples_out[:,2] #* np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
     #gamma=lorentz factor
