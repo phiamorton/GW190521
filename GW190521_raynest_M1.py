@@ -16,7 +16,7 @@ from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
 from figaro.plot import plot_multidim 
 
-from priors import rad_prior
+from priors import rad_prior, AGN_mass_prior
 
 class redshift_model(raynest.model.Model):
 
@@ -30,7 +30,7 @@ class redshift_model(raynest.model.Model):
         self.z_c=z_c
         self.DL_em = CosmologicalParameters(0.674,0.315,0.685,-1.,0.).LuminosityDistance_double(self.z_c)
         
-        self.names= ['r', # radius from SMBH in terms of Swarzshild radii (log scale)?
+        self.names= ['r', # radius from SMBH in terms of Swarzshild radii 
                      'M_1', # M_1 true mass (NOT detector frame)
                      #'angle_disk_RA', # theta_disk is the inclination of the AGN disk (max at 0)
                      #'angle_disk_DEC', # theta_disk is the inclination of the AGN disk (max at 0)
@@ -49,7 +49,7 @@ class redshift_model(raynest.model.Model):
 
        #need to use bounds in log space
        #ISCO at 3R_S https://en.wikipedia.org/wiki/Innermost_stable_circular_orbit 
-        self.bounds =[ [np.log(3), 4], [0.,200.], [-1,1] ]
+        self.bounds =[ [3, 400], [0.,200.], [-1,1] ]
         #[0,2*np.pi], [0, 2*np.pi], [0, 2*np.pi] ] #for using 3 angles
         #updated r bounds to show whole region where migration traps may occurr and 
         # have minimum at ISCO, no longer gives invalid sqrt error
@@ -68,14 +68,14 @@ class redshift_model(raynest.model.Model):
 
         if np.isfinite(logp):
             #logp_radius = 0.
-            logp_radius= np.log(rad_prior(np.exp(x['r']))) #radius prior ( Swarzchild radii)
+            logp_radius= np.log(rad_prior(x['r'])) #radius prior ( Swarzchild radii)
             #https://drive.google.com/drive/folders/1aCHNObF4t6usq2H18MGR9PcsgiJr-PyB 
             #do I need to normalize???
             #when I add this prior and make r/R_s bounds larger: theta_eff peaks at 0 without the little symmetric peaks? weird?
-            logp_M_c = 0. #agnostic flat chirp mass prior 
-            #flat mass distribution in AGN source: https://drive.google.com/drive/folders/1aCHNObF4t6usq2H18MGR9PcsgiJr-PyB 
-           
-            return logp_radius + logp_M_c
+            logp_M = AGN_mass_prior(x['M_1']) #agnostic flat chirp mass prior 
+            #mass dist. from Paola
+
+            return logp_radius + logp_M
         else:
             return -np.inf
 
@@ -89,7 +89,7 @@ class redshift_model(raynest.model.Model):
 
         #easiest to define velocity even though it is not a parameter directly used, but we need to relationship between r, v and z
         #the pre-merger velocity along LOS
-        vel = 1./np.sqrt(2*(np.exp(x['r'])-1))
+        vel = 1./np.sqrt(2*(x['r']-1))
         vel_LoS = vel * (x['cos_effective_angle']) #np.cos(x['angle_disk_RA']) * np.cos(x['angle_disk_DEC']) * np.cos(x['orbital_phase'])
         #gamma/lorentz factor
         gamma = 1./np.sqrt(1 - vel**2)
@@ -101,7 +101,7 @@ class redshift_model(raynest.model.Model):
         z_rel = gamma * (1 + vel_LoS) - 1     #is it + or - ???? I do not know??? https://physics.stackexchange.com/questions/61946/relativistic-doppler-effect-derivation 
 
         #z_grav (r)
-        z_grav = 1./np.sqrt(1 - np.exp(-x['r'])) - 1 
+        z_grav = 1./np.sqrt(1 - 1./x['r']) - 1 
         #D_L eff (z_c, z_rel, z_grav, D_L)
         D_eff = (1+z_rel)**2 * (1+z_grav) * self.DL_em
 
@@ -137,18 +137,18 @@ if __name__ == '__main__':
 
     mymodel= redshift_model(z_c, GW_posteriors)
     if not postprocess:
-        nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000, output = 'inference_M1_rprior_interp/')
+        nest = raynest.raynest(mymodel, verbose=2, nnest=1, nensemble=1, nlive=1000, maxmcmc=5000, output = 'inference_M1_final/')
         nest.run(corner = True)
         post = nest.posterior_samples.ravel()
     else:
-        with h5py.File('inference_M1_rprior_interp/raynest.h5', 'r') as f:
+        with h5py.File('inference_M1_final/raynest.h5', 'r') as f:
             post = np.array(f['combined']['posterior_samples'])
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
-    samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['Distance from SMBH $[R_s]$','$M_1 [M_\odot]$', '$cos(\\theta_{effective})$'], truths=[None,85, None]) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
+    #samples[:,0] = np.exp(samples[:,0])
+    fig = corner(samples, labels = ['Distance from SMBH $[R_s]$','$M_1 [M_\odot]$', '$cos(\\theta_{effective})$'], truths=[None,85, None], show_titles=True) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
-    fig.savefig('inference_M1_rprior_interp/joint_posterior_redshiftmodel_M1_interp.pdf', bbox_inches = 'tight')
+    fig.savefig('inference_M1_final/joint_posterior_redshiftmodel_M1_interp.pdf', bbox_inches = 'tight')
 
     #now plotting a comparison of the figaro reconstruction versus the output for D_Leff and M_c
     # need to return the D_L_eff distribution from my model? 
@@ -191,6 +191,6 @@ if __name__ == '__main__':
 
 
     fig2=corner(reconstruction[:,[1,0]],labels = [ 'M_1 effective ',' D_L effective'], truths=[85,None]) 
-    fig2.savefig('inference_M1_rprior_interp/GW_posterior_vs_reconstruction_redshift_M1_interp.pdf', bbox_inches = 'tight')
+    fig2.savefig('inference_M1_final/GW_posterior_vs_reconstruction_redshift_M1_interp.pdf', bbox_inches = 'tight')
     
     
