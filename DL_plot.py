@@ -33,11 +33,11 @@ D_L=np.linspace(1,9999,202)[1:-1]
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
 with h5py.File('old_waveform/GW190521_posterior_samples.h5', 'r') as f:
     post = np.array(f['IMRPhenomPv3HM']['posterior_samples'])
-    print(post['luminosity_distance'])
+    #print(post['luminosity_distance'])
 samples= np.column_stack(post['luminosity_distance'])
 #print(samples_GW17)
 kernel=gaussian_kde(samples)
-plt.plot(D_L, kernel(D_L), color='purple', label='LVK IMRPhenomPv3HM')
+plt.plot(D_L, kernel(D_L),linewidth=1, color='indigo', label='LVK v2:\nIMRPhenomPv3HM ')
 #plt.hist()
 
 #conditioned
@@ -49,9 +49,9 @@ conditioned_draws=[d.marginalise([0]) for d in draws]
 draws_pdf = np.mean([d.pdf(D_L.T) for d in conditioned_draws], axis = 0).reshape(len(D_L)) 
 #interp_cond=interp1d(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
-plt.plot(D_L,draws_pdf, color='green', label='conditioned')
+plt.plot(D_L,draws_pdf,linewidth=1, color='indianred', label='conditioned')
 perc = np.sum(draws_pdf[D_L<DL_em]*(D_L[1]-D_L[0]))
-print(perc)
+print("The EM candidate lies at the", perc*100, "percentile")
 
 # percentile=np.percentile(draws_pdf, [70])
 # print(DL_em)
@@ -68,14 +68,14 @@ draws_m1_marginal = marginalise(draws_marg, [0])#[d.marginalise([0]) for d in dr
 draws_pdf = np.mean([d.pdf(D_L.T) for d in draws_m1_marginal], axis = 0).reshape(len(D_L)) 
 #interp_marg=interp1d(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
-plt.plot(D_L,draws_pdf, color='blue', label='marginalized')
+plt.plot(D_L,draws_pdf, linewidth=1, color='forestgreen', label='marginalized')
 
 
 #fig.axes.legend(*fig.axes.get_legend_handles_labels(), loc='center', frameon=False)
-plt.axvline(DL_em, color='red', label='EM counterpart')
+plt.axvline(DL_em, linewidth=1,color='mediumblue', label='EM counterpart')
 
 plt.xlabel('Distance [Mpc]')
-plt.ylabel('probability(Distance)')
+plt.ylabel('Probability')
 plt.ylim(bottom=0.)
 plt.legend()
 plt.savefig('Distance_comparison.pdf')
