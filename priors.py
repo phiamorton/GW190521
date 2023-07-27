@@ -28,6 +28,10 @@ pl_peak_interpolant = interp1d(LVK_o3[:,0], LVK_o3[:,1], fill_value = 'extrapola
 H0 = np.genfromtxt('H0_prior.txt')
 H0_interpolant = interp1d(H0[:,0], H0[:,1])
 
+# AGN mass distribution (Paola)
+m1_agn = np.genfromtxt('AGN_mass_distribution.txt')
+agn_mass_interpolant = interp1d(m1_agn[:,0], m1_agn[:,1])
+
 def pl_peak_no_tapering(m):
     """
     Power-law + peak model without any tapering (low mass or high mass).
@@ -48,6 +52,12 @@ def H0_prior(H0):
     Prior induced by GW170817 EM counterpart
     """
     return H0_interpolant(H0)
+
+def AGN_mass_prior(m):
+    """
+    AGN mass model from Paola's dataset
+    """
+    return agn_mass_interpolant(m)
     
 def rad_prior(r):
     #linear in log scale:
