@@ -73,7 +73,7 @@ if __name__ == '__main__':
     #print(help(laplace.ppf))
     #test1=laplace.pdf(logr,2,width1/100)
     #plt.plot(logr, test1)
-    plt.xlabel(r'$\frac{r}{R_s}$')
+    plt.xlabel(r'Distance from SMBH [${R_s}$]')
     plt.ylabel('prob(BBH location)')
-    plt.show()
+    plt.savefig('radius_prior')
 
