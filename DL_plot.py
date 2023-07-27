@@ -59,7 +59,7 @@ draws_m1_marginal = marginalise(draws_marg, [0])#[d.marginalise([0]) for d in dr
 draws_pdf = np.mean([d.pdf(D_L.T) for d in draws_m1_marginal], axis = 0).reshape(len(D_L)) 
 #interp_marg=interp1d(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
-plt.plot(D_L,draws_pdf, color='magenta', label='marginalized')
+plt.plot(D_L,draws_pdf, color='blue', label='marginalized')
 
 
 #fig.axes.legend(*fig.axes.get_legend_handles_labels(), loc='center', frameon=False)
