@@ -17,7 +17,7 @@ ax.plot(M, kernel(M), color='purple', label='Redshift model')
 
 
 #LVK
-#https://gwosc.org/eventapi/html/GWTC-2.1-confident/GW190521/v4/
+#h5 file from combined waveform https://gwosc.org/eventapi/html/GWTC-2.1-confident/GW190521/v4/
 with h5py.File('IGWN-GWTC2p1-v2-GW190521_030229_PEDataRelease_mixed_cosmo.h5', 'r') as f:
     post= np.array(f['C01:Mixed']['posterior_samples']['mass_1_source'])
     print(post)
