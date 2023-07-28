@@ -41,8 +41,8 @@ ax.plot(H0, kernel(H0), linewidth=1, label='GW190521', color='maroon')
 
 
 
-ax.set_xlabel('$H_0$')
-ax.set_ylabel('p($H_0$)')
+ax.set_xlabel('$H_0$ [$kms^{-1}Mpc^{-1}$]')
+ax.set_ylabel('Probability')
 ax.legend(loc=0)
 ax.set_xlim(50,150)#H0.min(), H0.max())
 ax.set_ylim(bottom = 0.)
