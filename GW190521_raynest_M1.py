@@ -127,7 +127,7 @@ if __name__ == '__main__':
     #the conditional distribution (based on EM sky location)
     #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
     #GW_posteriors = load_density(dpgmm_file)
-    dpgmm_file= 'conditional_interpolation_nF.pkl'
+    dpgmm_file= 'conditional_interpolation_nF.pkl' #nF= norm =False used in conditioning the dist.
     with open(dpgmm_file, 'rb') as f:
         GW_posteriors = pickle.load(f)
     def GW_post(M,DL):
