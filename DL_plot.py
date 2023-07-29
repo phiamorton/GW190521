@@ -51,7 +51,7 @@ draws_pdf = np.mean([d.pdf(D_L.T) for d in conditioned_draws], axis = 0).reshape
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
 plt.plot(D_L,draws_pdf,linewidth=1, color='indianred', label='conditioned')
 perc = np.sum(draws_pdf[D_L<DL_em]*(D_L[1]-D_L[0]))
-print("The EM candidate lies at the", perc*100, "percentile")
+print("The EM candidate lies at the", perc*100, "percentile for the conditioned distribution")
 
 # percentile=np.percentile(draws_pdf, [70])
 # print(DL_em)
@@ -69,6 +69,8 @@ draws_pdf = np.mean([d.pdf(D_L.T) for d in draws_m1_marginal], axis = 0).reshape
 #interp_marg=interp1d(D_L, draws_pdf)    
 #fig = plot_median_cr(draws, label = 'D_{effective}', unit='Mpc', median_label='LVK old waveform')
 plt.plot(D_L,draws_pdf, linewidth=1, color='forestgreen', label='marginalized')
+perc = np.sum(draws_pdf[D_L<DL_em]*(D_L[1]-D_L[0]))
+print("The EM candidate lies at the", perc*100, "percentile for the marginal distribution")
 
 
 #fig.axes.legend(*fig.axes.get_legend_handles_labels(), loc='center', frameon=False)
