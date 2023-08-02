@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import laplace
 from scipy.interpolate import interp1d
+from figaro import plot_settings
 
 """
 LVK best estimates for the PL+Peak parameters
@@ -86,12 +87,12 @@ if __name__ == '__main__':
     r= np.linspace(1, 400, 100000) #already log
     #print(logr)
 
-    plt.plot(r, rad_prior(r))
+    plt.plot(r, rad_prior(r), linewidth=1.2)
 
     #print(help(laplace.ppf))
     #test1=laplace.pdf(logr,2,width1/100)
     #plt.plot(logr, test1)
-    plt.xlabel(r'Distance from SMBH [${R_s}$]')
-    plt.ylabel('prob(BBH location)')
+    plt.xlabel(r'$\frac{r}{R_s}$ ')
+    plt.ylabel(r'p($\frac{r}{R_s}$)')
     plt.savefig('radius_prior.pdf')
 
