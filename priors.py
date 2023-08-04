@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import laplace
 from scipy.interpolate import interp1d
+from scipy.signal import peak_widths, find_peaks
 from figaro import plot_settings
 
 """
@@ -79,6 +80,8 @@ def rad_prior(r):
     #just eyeballed scale factor to shrink the width and then rescaled the entire distribution 
     peak1= (laplace.pdf(r, center1, width1)) *50
     peak2=(laplace.pdf(r, center2, width2)) *50
+
+    print("2 *ln(2)* the variance =", 2*width2* np.log(2)) #https://www.originlab.com/doc/Origin-Help/Laplace-FitFunc
     return linear + peak1 +peak2      # /3 if each is normalized IF WANT TO NORMALIZE? MAYBE?
 
 if __name__ == '__main__':
@@ -95,4 +98,3 @@ if __name__ == '__main__':
     plt.xlabel(r'$\frac{r}{R_s}$ ')
     plt.ylabel(r'p($\frac{r}{R_s}$)')
     plt.savefig('radius_prior.pdf')
-
