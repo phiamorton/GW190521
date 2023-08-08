@@ -170,7 +170,7 @@ class redshift_model_GW17(raynest.model.Model):
 
 if __name__ == '__main__':
 
-    postprocess=False
+    postprocess=True
 
     dpgmm_file= 'conditional_interpolation_nF.pkl'
     with open(dpgmm_file, 'rb') as f:
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     # samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['Distance from SMBH [$R_s$]','$M_1$', '$cos(\\theta_{effective})$', '$H_0$'], truths = [None,None,None,67.4], show_titles=True) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{R_s}$','$M_1 [M_\\odot]$', '$cos(\\theta)$', '$H_0$'], truths = [None,None,None,67.4], titles= ['$\\frac{r}{R_s}$','$M_1$', '$cos(\\theta)$', '$H_0$'], show_titles=True) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig.savefig('inference_H/joint_posterior_with_H0.pdf', bbox_inches = 'tight')
 
@@ -208,43 +208,10 @@ if __name__ == '__main__':
 
     samples_GW17 = np.column_stack([post[lab] for lab in mymodel.names])
     #samples_GW17[:,0] = np.exp(samples[:,0])
-    fig2 = corner(samples_GW17, labels = ['Distance from SMBH [$R_s$]','$M_1$', '$cos(\\theta_{effective})$', '$H_0$'], truths = [None,None,None,67.4], show_titles=True) #'$RA$','$Dec$','$phase$'])
+    fig2 = corner(samples_GW17, labels = ['$\\frac{r}{R_s}$','$M_1 [M_\\odot]$', '$cos(\\theta)$', '$H_0$'], truths = [None,None,None,67.4], titles= ['$\\frac{r}{R_s}$','$M_1$', '$cos(\\theta)$', '$H_0$'], show_titles=True) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
     fig2.savefig('inference_H_GW17/joint_posterior_with_H0.pdf', bbox_inches = 'tight')
 
-# #testing eqn 58 in Torres-Orjuela
-# omega = CosmologicalParameters(0.674, 0.315, 0.685, -1., 0.)
-# DL_em = omega.LuminosityDistance_double(z_c)
-# r= samples[:,0]
-#     #reconstruction[:,0]=np.exp(reconstruction[:,0]) #use if samples of r are log
- 
-# vel=1./np.sqrt(2*(r-1))  #the magnitude at a given distance from SMBH
-# vel_LoS = vel * samples[:,2] #* np.cos(samples[:,3]) * np.cos(samples[:,4]) #Ive created a monster :((
-#     #gamma=lorentz factor
-# gamma = 1./np.sqrt(1 - vel**2)
-
-#     #z_rel (r, angles)
-#     #make bounds on angle 0 to 2pi, redshifted should be when v_LoS is negative (theta=pi)
-# z_rel = gamma * (1 + vel_LoS) - 1
-
-#     #z_grav (r)
-# z_grav = 1./np.sqrt(1 -1./r ) - 1 
-#     #D_L eff (z_c, z_rel, z_grav, D_L)
-# D_eff = (1+z_rel)**2 * (1+z_grav) * DL_em 
-
-# M_eff = (1+z_c) * (1 + z_rel) * (1 + z_grav) * samples[:, 1]
-
-# c = 299792.458
-# H = c*z_c/D_eff #km/s/MpC 
-# #https://astronomy.swin.edu.au/cosmos/h/Hubble+distance#:~:text=This%20is%20the%20distance%20of,the%20Hubble%20distance%20DH.
-
-# # #want to add Planck value for comparison, truths
-
-# fig4=corner(H, truths=[67.4])
-# fig4.savefig('inference_H/H_0estimate_redshift_rpriormodel')
-
-#x=np.linspace(40,100)
-#plt.plot(H0_prior(x))
 fig, ax = plt.subplots()
 ax.hist(samples_GW17[:,[3]], histtype='step', density = True)
 ax.hist(samples[:,[3]], histtype='step', density=True)
