@@ -127,7 +127,7 @@ if __name__ == '__main__':
     #the conditional distribution (based on EM sky location)
     #z_c from EM counterpart candidate https://arxiv.org/pdf/2006.14122.pdf at ~2500 Mpc
     #GW_posteriors = load_density(dpgmm_file)
-    dpgmm_file= 'conditional_interpolation_nF.pkl'
+    dpgmm_file= 'conditional_interpolation_nF.pkl' #nF= norm =False used in conditioning the dist.
     with open(dpgmm_file, 'rb') as f:
         GW_posteriors = pickle.load(f)
     def GW_post(M,DL):
@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     samples = np.column_stack([post[lab] for lab in mymodel.names])
     #samples[:,0] = np.exp(samples[:,0])
-    fig = corner(samples, labels = ['Distance from SMBH $[R_s]$','$M_1 [M_\odot]$', '$cos(\\theta_{effective})$'], truths=[None,98.4, None], show_titles=True) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
+    fig = corner(samples, labels = ['$\\frac{r}{R_s}$','$M_1 \ [M_\\odot]$', '$cos(\\theta)$'], truths=[None,98.4, None], titles= ['$\\frac{r}{R_s}$','$M_1$', '$cos(\\theta)$'], show_titles=True) #, truths = [None,None,None,67.4,0.315]) #'$RA$','$Dec$','$phase$'])
     #might be a good visual to add M_C unredshifted as reported by LVK to compare
    
     fig.savefig('inference_M1_final/joint_posterior_redshiftmodel_M1_interp.pdf', bbox_inches = 'tight')
