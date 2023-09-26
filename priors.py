@@ -88,7 +88,7 @@ def rad_prior(r):
     return linear + peak1 +peak2      # /3 if each is normalized IF WANT TO NORMALIZE? MAYBE?
 
 def logprior_luminosity_distance(x):
-     logP = 3.0*x-np.log(np.sum([c_dist[i]*(np.exp(x)/10**3)**i for i in range(5)]))
+     logP = 3.0*np.log(x)-np.log(np.sum([c_dist[i]*(x/10**3)**i for i in range(5)]))
      return logP
 
 if __name__ == '__main__':
