@@ -32,6 +32,9 @@ H0_interpolant = interp1d(H0[:,0], H0[:,1], fill_value = 'extrapolate')
 m1_agn = np.genfromtxt('AGN_mass_distribution.txt')
 agn_mass_interpolant = interp1d(m1_agn[:,0], m1_agn[:,1], fill_value = 'extrapolate')
 
+# Values for luminosity distance prior (as in https://git.ligo.org/RatesAndPopulations/lalinfsamplereweighting)
+c_dist = [1.012306, 1.136740, 0.262462, 0.016732, 0.000387]
+
 def pl_peak_no_tapering(m):
     """
     Power-law + peak model without any tapering (low mass or high mass).
@@ -79,6 +82,10 @@ def rad_prior(r):
     peak1= (laplace.pdf(r, center1, width1)) *50
     peak2=(laplace.pdf(r, center2, width2)) *50
     return linear + peak1 +peak2      # /3 if each is normalized IF WANT TO NORMALIZE? MAYBE?
+
+def logprior_luminosity_distance(x):
+     logP = 3.0*x-np.log(np.sum([c_dist[i]*(np.exp(x)/10**3)**i for i in range(5)]))
+     return logP
 
 if __name__ == '__main__':
 
