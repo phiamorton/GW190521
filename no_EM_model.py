@@ -111,7 +111,7 @@ class noEM_model_plpk_no_tapering(raynest.model.Model):
         M_eff = (1+x['z_c'])* x['M_1'] #chirp mass with cosmological redshift= M_eff
 
         logl = GW_post(M_eff, DL) #one draw
-        logl -= 2* np.log(DL) #remove GW prior
+        logl -= logprior_luminosity_distance(DL) #remove GW prior
         return logl
 
 noEM_plpk_no_tapering_model= noEM_model_plpk_no_tapering(GW_posteriors)
