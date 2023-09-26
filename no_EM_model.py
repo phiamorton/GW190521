@@ -14,7 +14,7 @@ from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
 from figaro.plot import plot_multidim 
 
-from priors import rad_prior, pl_peak_LVK, pl_peak_no_tapering 
+from priors import rad_prior, pl_peak_LVK, pl_peak_no_tapering, logprior_luminosity_distance 
 
 # dpgmm_file = 'primarymass/marginalized_density_draws_M1_and_DL.pkl' #detector frame M_1, not conditioned
 
@@ -59,7 +59,7 @@ class noEM_model_plpk(raynest.model.Model):
         #print(type(M_eff))
         #print(type(DL))
         logl = GW_post(M_eff, DL)
-        logl -= 2* np.log(DL)
+        logl -= logprior_luminosity_distance(DL)
         return logl
 
 
