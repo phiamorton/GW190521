@@ -15,7 +15,7 @@ with h5py.File('inference_no_tapering/raynest.h5', 'r') as f:
     no_EM_plpk_no_tapering_logZ_error=  np.array(f['combined']['logZ_error'])
 
 #redshift model with r prior
-with h5py.File('inference_M1_rprior_interp/raynest.h5', 'r') as f:
+with h5py.File('inference_M1_final/raynest.h5', 'r') as f:
     redshift_logZ=  np.array(f['combined']['logZ'])
     redshift_logZ_error=  np.array(f['combined']['logZ_error'])
 

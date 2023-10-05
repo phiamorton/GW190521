@@ -14,7 +14,7 @@ from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
 from figaro.plot import plot_multidim 
 
-from priors import rad_prior, pl_peak_LVK, pl_peak_no_tapering 
+from priors import rad_prior, pl_peak_LVK, pl_peak_no_tapering, logprior_luminosity_distance 
 
 # dpgmm_file = 'primarymass/marginalized_density_draws_M1_and_DL.pkl' #detector frame M_1, not conditioned
 
@@ -59,7 +59,7 @@ class noEM_model_plpk(raynest.model.Model):
         #print(type(M_eff))
         #print(type(DL))
         logl = GW_post(M_eff, DL)
-        logl -= 2* np.log(DL)
+        logl -= logprior_luminosity_distance(DL)
         return logl
 
 
@@ -111,7 +111,7 @@ class noEM_model_plpk_no_tapering(raynest.model.Model):
         M_eff = (1+x['z_c'])* x['M_1'] #chirp mass with cosmological redshift= M_eff
 
         logl = GW_post(M_eff, DL) #one draw
-        logl -= 2* np.log(DL) #remove GW prior
+        logl -= logprior_luminosity_distance(DL) #remove GW prior
         return logl
 
 noEM_plpk_no_tapering_model= noEM_model_plpk_no_tapering(GW_posteriors)

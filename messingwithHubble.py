@@ -15,7 +15,7 @@ from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
 from figaro.plot import plot_multidim 
 
-from priors import rad_prior, H0_prior, AGN_mass_prior
+from priors import rad_prior, H0_prior, AGN_mass_prior, logprior_luminosity_distance 
 
 class redshift_model(raynest.model.Model):
 
@@ -108,7 +108,7 @@ class redshift_model(raynest.model.Model):
         #my likelihood is marginalized over D_L eff, M_c eff, z_r, z_g, D_L
         #logl = self.draws[0]._fast_logpdf(pt)  #one draw
         logl=GW_post(M_eff,D_eff)
-        logl-=2*np.log(D_eff) #remove GW prior
+        logl-=logprior_luminosity_distance(D_eff) #remove GW prior
         # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)  #average of multiple draws
 
         return logl
@@ -164,7 +164,7 @@ class redshift_model_GW17(raynest.model.Model):
         M_eff = (1+self.z_c) * (1 + z_rel) * (1 + z_grav) * x['M_1']
         
         logl=GW_post(M_eff,D_eff)
-        logl-=2*np.log(D_eff) #remove GW prior
+        logl-=logprior_luminosity_distance(D_eff) #remove GW prior
         
         return logl
 

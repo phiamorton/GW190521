@@ -16,7 +16,7 @@ from figaro.load import load_density
 from figaro.likelihood import logsumexp_jit
 from figaro.plot import plot_multidim 
 
-from priors import rad_prior, AGN_mass_prior
+from priors import rad_prior, AGN_mass_prior, logprior_luminosity_distance 
 
 class redshift_model(raynest.model.Model):
 
@@ -75,7 +75,7 @@ class redshift_model(raynest.model.Model):
             logp_M = AGN_mass_prior(x['M_1']) #agnostic flat chirp mass prior 
             #mass dist. from Paola
 
-            return logp_radius + logp_M
+            return logp_radius + logp_M 
         else:
             return -np.inf
 
@@ -114,7 +114,7 @@ class redshift_model(raynest.model.Model):
         #logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws[:10]]), self.ones) - np.log(self.N_draws)  #average of multiple d
         logl=GW_post(M_eff,D_eff)
         #print(2*np.log(D_eff))
-        logl -= 2*np.log(D_eff) #remove GW prior
+        logl -= logprior_luminosity_distance(D_eff) #remove updated GW prior
         # logl = logsumexp_jit(np.array([d._fast_logpdf(pt) for d in self.draws]), self.ones) - np.log(self.N_draws)  #average of multiple draws
 
         return logl
